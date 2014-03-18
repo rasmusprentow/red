@@ -1,7 +1,6 @@
 #activity.py
 
 
-
 class Activity(object):
     """docstring for Activity"""
 
@@ -12,14 +11,7 @@ class Activity(object):
     def onCreate(self, data=None):
         pass
 
-    def receiveKeyinputMessage(self,message):
-        pass
 
-    def receiveNetworkMessage(self,message):
-        pass
-
-    def receiveDisplayMessage(self,message):
-        pass
 
     def setLayout(self,layout):
         self.kernel.send("display", {"head":"set_layout", "data":layout})
@@ -34,3 +26,12 @@ class Activity(object):
 
     def emptyQueue(self,name):
         self.kernel.emptyQueue(name)
+
+
+    @property
+    def session(self):
+        return self.kernel.getSession()
+   
+
+    def callLayoutFunc(self, func, param):
+        self.send("display", {"head":"call_func", "data":{"func":func, "param":param}})

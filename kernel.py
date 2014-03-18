@@ -24,11 +24,18 @@ class Kernel (threading.Thread):
         self.poller = zmq.Poller()
         self.running = True
         self.services = ServiceFactory(self).createActiveServicesFromConfig()
-        
-        
-        #self.db = model.engine.connect()
+        self._session = None
 
-        self.session = sessionmaker(bind=engine)()
+    def getSession(self):
+        if self._session == None:
+            self._session = sessionmaker(bind=engine)()
+        return self._session
+
+    @property
+    def session(self):
+        return getSession()
+    
+    
 
     def receiveKeyinputMessage(self,message):
         if message['head'] == "key_pressed":
@@ -46,6 +53,10 @@ class Kernel (threading.Thread):
     def receiveLpcMessage(self, message):
         self.activity.receiveLpcMessage(message)
 
+    def receiveRfidinputMessage(self, message):
+        self.activity.receiveRfidinputMessage(message)
+
+
     def stop(self):
         self.running = False
         #self.db.close()
@@ -58,12 +69,8 @@ class Kernel (threading.Thread):
     def startActivities(self):
         startActivityName = config.get("Activities", "start")
         self.logger.info("Starting activity: " + startActivityName)
-        
         self.switchActivity(startActivityName)
 
-        #activityClass = eval(startActivityName + "." + startActivityName.title())
-        #self.activity = activityClass(self)
-        #self.activity.onCreate();
        
     def run(self):
         self.logger.info("Kernel is booting")

@@ -33,7 +33,7 @@ class Kernel (threading.Thread):
 
     @property
     def session(self):
-        return getSession()
+        return self.getSession()
     
     
 

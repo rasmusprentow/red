@@ -29,8 +29,9 @@ class Display(Service, QThread, QObject):
 
     @Slot(str)
     def onClicked(self, btn):
-        print btn
+      
         message = {"head":"button_clicked","data":btn}
         self.send(message)
+        
         
 

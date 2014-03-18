@@ -36,8 +36,11 @@ class MainWindow(QtGui.QMainWindow):
         
         self.view = QtDeclarative.QDeclarativeView()
         self.view.setSource(QtCore.QUrl.fromLocalFile( './layouts/'+ layout +'.qml' ))
-        self.view.setResizeMode( QtDeclarative.QDeclarativeView.SizeRootObjectToView )   
-        self.view.setCursor(QtCore.Qt.BlankCursor)
+        self.view.setResizeMode( QtDeclarative.QDeclarativeView.SizeRootObjectToView )
+        if config.get("GUI","cursor") == "true":
+            pass
+        else:
+            self.view.setCursor(QtCore.Qt.BlankCursor)
         qcontext = self.view.rootContext() 
         qcontext.setContextProperty("context",Display._instance)
  

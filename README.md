@@ -1,4 +1,4 @@
 red
 ===
 
-Raped Embedded Development
+Rapid Embedded Development

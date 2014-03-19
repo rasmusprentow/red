@@ -111,7 +111,7 @@ class RespondMessage:
         return valid == self.bcc
 
 ###################################################################################
-class RfidReader():
+class NfcReader():
     """
     Class that wraps the RFID reader. 
     The class will initiate connection once constructed.

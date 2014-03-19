@@ -35,10 +35,6 @@ class Kernel (threading.Thread):
     @property
     def session(self):
         return self.getSession()
-    
-    
-
-  
 
     def __getattr__(self, name):
         """ This little piece magic delegates methods that
@@ -59,7 +55,6 @@ class Kernel (threading.Thread):
 
     def stop(self):
         self.running = False
-        #self.db.close()
 
         for key in self.services:
             service = self.services[key]

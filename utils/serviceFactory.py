@@ -15,9 +15,9 @@ import logging
 logger = logging.getLogger("kernel.ServiceFactory")
 
 class ServiceMeta ():
-    def __init__(self,socketName,serviceName, callback,context, poller):
+    def __init__(self,socketName,serviceName,context, poller):
         self.serviceName = serviceName;
-        self.callback = callback
+      
         self.socketName = socketName
 
         self.socket = context.socket(zmq.PAIR)
@@ -45,11 +45,10 @@ class ServiceFactory ():
             logger.info("Creating service: " + service)
             socketName = config.get('Sockets', service)
             className = eval( service + "." +service.title())
-            callback = eval("self.module.receive" + service.title() + "Message")
-            serviceList[service] =(self.createService(socketName,className,callback))
+            serviceList[service] =(self.createService(socketName,className))
 
         return serviceList
 
     
-    def createService(self,socketName, servicename, callback ):
-        return ServiceMeta(socketName, servicename, callback,self.module.context,self.module.poller)
+    def createService(self,socketName, servicename ):
+        return ServiceMeta(socketName, servicename,self.module.context,self.module.poller)

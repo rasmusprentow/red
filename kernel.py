@@ -53,8 +53,8 @@ class Kernel (threading.Thread):
     def receiveLpcMessage(self, message):
         self.activity.receiveLpcMessage(message)
 
-    def receiveRfidinputMessage(self, message):
-        self.activity.receiveRfidinputMessage(message)
+    def receiveNfcinputMessage(self, message):
+        self.activity.receiveNfcinputMessage(message)
 
 
     def stop(self):

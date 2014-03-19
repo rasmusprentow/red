@@ -2,7 +2,7 @@
 
 from red.services.base import Service
 import zmq
-from red.api.rfid import RfidReader
+from red.api.nfc import NfcReader
 from red.config import config
 from threading import Thread
 """
@@ -24,8 +24,8 @@ class Lpc(Service, Thread):
     def __init__(self, name, context=None):
         super(Lpc, self).__init__(name=name, context=context)
         port = config.get('LPC', 'port')
-        self.rfidReader = RfidReader(port=port)
-        self.rfidReader.start()
+        self.nfcReader = NfcReader(port=port)
+        self.nfcReader.start()
 
     def processMessage(self, message):
         if(message['head'] == "get_pocket"):
@@ -36,15 +36,15 @@ class Lpc(Service, Thread):
             return True
 
         elif(message['head'] == "activate_buzzer"):
-            self.rfidReader.activateBuzzer()
+            self.nfcReader.activateBuzzer()
             return True
         elif(message['head'] == "flush_serial"):
-            self.rfidReader.clear()
+            self.nfcReader.clear()
             return True
         else:
             return False
             
 
     def getPocket(self):
-        message = self.rfidReader.getPocketData()
+        message = self.nfcReader.getPocketData()
         return message.getSerial()

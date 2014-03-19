@@ -1,7 +1,4 @@
 #app.py
-
-
-
 import time
 import logging, logging.config
 import sys

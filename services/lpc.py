@@ -2,7 +2,7 @@
 
 from red.services.base import Service
 import zmq
-from red.api.nfc import NfcReader
+from red.drivers.nfc import NfcReader
 from red.config import config
 from threading import Thread
 """

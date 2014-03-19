@@ -38,26 +38,29 @@ class Kernel (threading.Thread):
     
     
 
-    def receiveKeyinputMessage(self,message):
-        if message['head'] == "key_pressed":
-            if message['data'] == "s":
-                self.stop()
-                return False
-        self.activity.receiveKeyinputMessage(message);
-
+  
 
     def __getattr__(self, name):
         """ This little piece magic delegates methods that
         start with 'receive' to the activity """
         if name.startswith('receive'):
-            assert re.match('^[\w-]+$', name) is not None
             if self.activity != None:
+                assert re.match('^[\w-]+$', name) is not None
                 return eval("self.activity." + name)
        
+    def receive(self,name, message):
+        if message['head'] == "key_pressed":
+            if message['data'] == "s":
+                self.stop()
+                
+        assert re.match('^[\w-]+$', name) is not None
+        method = eval("self.activity.receive" + name.capitalize() + "Message")        
+        method(message)
 
     def stop(self):
         self.running = False
         #self.db.close()
+
         for key in self.services:
             service = self.services[key]
             if service.socketName != config.get("Sockets", "keyinput"):
@@ -86,8 +89,8 @@ class Kernel (threading.Thread):
             try:
             
                 for key in self.services:
-                    if self.services[key].socket in poller_socks:       
-                        self.services[key].callback (self.services[key].socket.recv_json())   
+                    if self.services[key].socket in poller_socks:
+                        self.receive(key, self.services[key].socket.recv_json())   
             except zmq.error.ContextTerminated:
                 self.logger.info ("ContextTerminated " + __file__ + " is shutting down");
                 self.running = False

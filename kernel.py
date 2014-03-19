@@ -3,7 +3,8 @@ import logging, logging.config
 import zmq
 import time, sys
 import threading
-
+import types
+import re
 
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
@@ -44,18 +45,15 @@ class Kernel (threading.Thread):
                 return False
         self.activity.receiveKeyinputMessage(message);
 
-    def receiveNetworkMessage(self, message):
-        self.activity.receiveNetworkMessage(message)
 
-    def receiveDisplayMessage(self, message):
-        self.activity.receiveDisplayMessage(message)
-
-    def receiveLpcMessage(self, message):
-        self.activity.receiveLpcMessage(message)
-
-    def receiveNfcinputMessage(self, message):
-        self.activity.receiveNfcinputMessage(message)
-
+    def __getattr__(self, name):
+        """ This little piece magic delegates methods that
+        start with 'receive' to the activity """
+        if name.startswith('receive'):
+            assert re.match('^[\w-]+$', name) is not None
+            if self.activity != None:
+                return eval("self.activity." + name)
+       
 
     def stop(self):
         self.running = False

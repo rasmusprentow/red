@@ -9,7 +9,7 @@ import re
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
 
-"""Imports module based on the config"""
+"""Imports package based on the config"""
 package = config.get('Activities','package')
 importPackage = "from activities." + package + " import *"
 exec importPackage

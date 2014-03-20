@@ -18,7 +18,7 @@ Dependencies
  - sqlalchemy*
  - pyserial*
 
-The star marked can be avoided, but are used by some standard services. 
+*can be avoided, but are used by some standard services. 
 
 Filestructure
 -------------

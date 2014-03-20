@@ -54,10 +54,19 @@ Services
 --------
 Besides activities services are essential. 
 Services run in their own thread, and are used to connect to drivers (See drivers)
-To create your own service inherit from `red.services.base.Service`
+To create your own service inherit from `red.services.base.Service` and `Thread`. 
+The reason we must explicitly inherit from `Thread` and not just make the base service do so is that the standard sarvice named `display` must use `QThread` to work. (If you forget the `Thread` you will have a deadlock`)
+Here is an example:
 
 
+    from red.services.base import Service
+    from threading import Thread
+    import zmq
+    class Keyinput(Service,Thread):
 
+        def processMessage(self,message):
+            #Do somthing here
+            pass
 
 Drivers
 -------

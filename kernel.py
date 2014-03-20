@@ -8,7 +8,12 @@ import re
 
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
-from activities import *
+
+"""Imports module based on the config"""
+package = config.get('Activities','package')
+importPackage = "from activities." + package + " import *"
+exec importPackage
+
 from model.model import engine
 from sqlalchemy.orm import sessionmaker
 
@@ -37,7 +42,7 @@ class Kernel (threading.Thread):
         return self.getSession()
 
     def __getattr__(self, name):
-        """ This little piece magic delegates methods that
+        """ This little piece of magic delegates methods that
         start with 'receive' to the activity """
         if name.startswith('receive'):
             if self.activity != None:

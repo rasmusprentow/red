@@ -1,17 +1,17 @@
-red
+RED
 ===
 
 Rapid Embedded Development
 
 Getting started
-===============
-Use create the folders specified in below in "Filestructure"
-Copy the `red/init-sample.conf` into `config/init.conf`
+---------------
+1. Use the folders specified below in "Filestructure"
+2. Copy the `red/init-sample.conf` into `config/init.conf`
 
 
 Filestructure
-=============
-To use RED your project must have the following file structure: 
+-------------
+To use RED in your project you need the following file structure: 
 
      <projectfolder>/
      ............... layouts/
@@ -20,8 +20,8 @@ To use RED your project must have the following file structure:
      ............... activities/
 
 Activities
-==========
-The core of any red project is the actitivies.
+----------
+The core of any RED project is the actitivies.
 Inherit from the `red.activity.Activity` to create your own activities. 
 To get documentation use 
 

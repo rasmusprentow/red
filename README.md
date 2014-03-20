@@ -9,6 +9,17 @@ Getting started
 2. Copy the `red/init-sample.conf` into `config/init.conf`
 
 
+Dependencies
+------------
+
+ - configparser
+ - pyzmq
+ - pyside*
+ - sqlalchemy*
+ - pyserial*
+
+The star marked can be avoided, but are used by some standard services. 
+
 Filestructure
 -------------
 To use RED in your project you need the following file structure: 
@@ -37,3 +48,18 @@ To use the init.conf you need the following line:
 Usage:
 
     config.get('Section','Option')
+    
+    
+Services
+--------
+Besides activities services are essential. 
+Services run in their own thread, and are used to connect to drivers (See drivers)
+To create your own service inherit from `red.services.base.Service`
+
+
+
+
+Drivers
+-------
+Drivers are the used to connect to physical devices. 
+Currently only one standard drivers is included, namely the `NfcReader` which wraps the api of an NFC reader.

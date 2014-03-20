@@ -8,7 +8,20 @@ import re
 
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
-from activities import *
+
+logger = logging.getLogger("kernel")
+
+"""Imports package based on the config"""
+try:
+    package = config.get('Activities','package')
+    importPackage = "from activities." + package + " import *"
+except: 
+    importPackage = "from activities import *"
+
+
+logger.info("Importing config defined package: " + importPackage)
+exec importPackage
+
 from model.model import engine
 from sqlalchemy.orm import sessionmaker
 
@@ -19,7 +32,7 @@ class Kernel (threading.Thread):
     def __init__(self):
         super(Kernel, self).__init__()
         ### Initialize Logger
-        self.logger = logging.getLogger("kernel")
+        self.logger = logger
 
         self.context = zmq.Context()
         self.poller = zmq.Poller()
@@ -35,13 +48,9 @@ class Kernel (threading.Thread):
     @property
     def session(self):
         return self.getSession()
-    
-    
-
-  
 
     def __getattr__(self, name):
-        """ This little piece magic delegates methods that
+        """ This little piece of magic delegates methods that
         start with 'receive' to the activity """
         if name.startswith('receive'):
             if self.activity != None:
@@ -54,12 +63,14 @@ class Kernel (threading.Thread):
                 self.stop()
                 
         assert re.match('^[\w-]+$', name) is not None
-        method = eval("self.activity.receive" + name.capitalize() + "Message")        
-        method(message)
+        try: 
+            method = eval("self.activity.receive" + name.capitalize() + "Message")        
+            method(message)
+        except AttributeError:
+            self.logger.fatal("The method 'receive" + name.capitalize() + "Message' is not implemented in " + str(self.activity))
 
     def stop(self):
         self.running = False
-        #self.db.close()
 
         for key in self.services:
             service = self.services[key]
@@ -103,7 +114,15 @@ class Kernel (threading.Thread):
 
 
     def switchActivity(self, activity, data = None):
-        self.activity = eval(activity + "." + activity.title())(self)
+           #name = ""
+        #"""Imports module based on the config"""
+        #try: 
+        #    name += config.get('Activities','package') + "."
+        #    
+        #except: 
+        #    pass #Silently ignore for now
+
+        self.activity = eval(activity + "." + activity.capitalize())(self)
         self.activity.onCreate(data)
 
     def emptyQueue(self,name):

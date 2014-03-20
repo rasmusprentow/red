@@ -23,16 +23,16 @@ Activities
 ----------
 The core of any RED project is the actitivies.
 Inherit from the `red.activity.Activity` to create your own activities. 
-To get documentation use 
+To get documentation use: 
 
      pydoc red/activities.py
 
 Config
 ------
 
-To use the init.conf you need the following line
+To use the init.conf you need the following line:
 
-from red.config import config
+    from red.config import config
 
-Usage
-config.get('Section','Option')
+Usage:
+    config.get('Section','Option')

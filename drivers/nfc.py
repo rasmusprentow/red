@@ -79,7 +79,7 @@ class Command:
         return _length
     
 ###################################################################################
-class RespondMessage:
+class RespondMessage(object):
     """ Represents the response from the LpcReader """
     def __init__(self):
         self.stationId = 0
@@ -103,7 +103,11 @@ class RespondMessage:
             data = self.data
             data.remove(0)
             return data
-           
+        
+    def getSerialAsHex(self):
+        data = "".join("{:02x}".format((c)) for c in self.getSerial())
+        return data
+
     def isValidBcc(self):
         valid = self.stationId ^ self.length ^ self.status 
         for value in self.data:
@@ -111,7 +115,7 @@ class RespondMessage:
         return valid == self.bcc
 
 ###################################################################################
-class NfcReader():
+class NfcReader(object):
     """
     Class that wraps the RFID reader. 
     The class will initiate connection once constructed.
@@ -202,3 +206,47 @@ class NfcReader():
         for byte in cmd.message:
             msg += chr(byte)
         self.serial.write(msg)
+
+
+
+ ###################################################################################
+
+class MockMessage(object):
+    def __init__(self, data):
+        self.data = data
+
+    def getSerialAsHex(self):
+        return self.data
+
+class MockNfcReader(object):
+    """
+    This class mocks and NfcReader using the key input
+    The class will initiate connection once constructed.
+    """
+
+    def __init__(self,port="/dev/ttyUSB0",baudrate=9600):
+       pass
+       
+
+    def start(self,ser=None):
+        pass
+
+    """ 
+    Puts the reader in read mode and 
+    returns a serial when there is one
+    """
+    def getPocketData(self):
+        
+        return MockMessage(raw_input())
+            
+
+    def activateBuzzer(self): 
+        print "Buzzzzzzzz"
+        
+
+    def clear(self):
+        pass
+
+
+    def write(self, cmd):
+        pass

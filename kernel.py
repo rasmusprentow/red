@@ -98,7 +98,7 @@ class Kernel (threading.Thread):
 
 
     def switchActivity(self, activity, data = None):
-        self.activity = eval(activity + "." + activity.title())(self)
+        self.activity = eval(activity + "." + activity.capitalize())(self)
         self.activity.onCreate(data)
 
     def emptyQueue(self,name):

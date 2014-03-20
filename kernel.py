@@ -37,7 +37,7 @@ class Kernel (threading.Thread):
         return self.getSession()
 
     def __getattr__(self, name):
-        """ This little piece magic delegates methods that
+        """ This little piece of magic delegates methods that
         start with 'receive' to the activity """
         if name.startswith('receive'):
             if self.activity != None:

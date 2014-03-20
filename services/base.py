@@ -16,6 +16,9 @@ class Service(object):
 
 
     def run(self):
+        """ 
+        Do not override this method
+        """
         while True:
             try:
                 message = self.socket.recv_json()
@@ -34,4 +37,7 @@ class Service(object):
                     self.send(message)
 
     def send(self, message):
+        """ 
+        Send message to the current activity.
+        """
         self.socket.send_json(message)

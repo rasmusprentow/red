@@ -2,7 +2,7 @@
 
 from red.services.base import Service
 import zmq
-from red.drivers.nfc import NfcReader
+import red.drivers.nfc as nfc
 from red.config import config
 from threading import Thread
 """
@@ -24,14 +24,17 @@ class Lpc(Service, Thread):
     def __init__(self, name, context=None):
         super(Lpc, self).__init__(name=name, context=context)
         port = config.get('LPC', 'port')
-        self.nfcReader = NfcReader(port=port)
+        if 'lpc' in config.get('Services', 'mock'):
+            self.nfcReader = nfc.MockNfcReader(port=port)
+        else:
+            self.nfcReader = nfc.NfcReader(port=port)
         self.nfcReader.start()
 
     def processMessage(self, message):
         if(message['head'] == "get_pocket"):
             serial = self.getPocket()
-            data = "".join("{:02x}".format((c)) for c in serial)
-            message = {'head' : 'pocket', 'data' : data}
+            
+            message = {'head' : 'pocket', 'data' : serial}
             self.send(message)
             return True
 
@@ -47,4 +50,4 @@ class Lpc(Service, Thread):
 
     def getPocket(self):
         message = self.nfcReader.getPocketData()
-        return message.getSerial()
+        return message.getSerialAsHex()

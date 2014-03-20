@@ -35,4 +35,5 @@ To use the init.conf you need the following line:
     from red.config import config
 
 Usage:
+
     config.get('Section','Option')

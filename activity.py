@@ -78,4 +78,4 @@ class Activity(object):
         Function is the name of the function to be called in the layout. 
         Param is paremeter for that function. 
         """
-        self.send("display", {"head":"call_func", "data":{"func":func, "param":param}})
+        self.send("display", {"head":"call_func", "data":{"func":function, "param":param}})

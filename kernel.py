@@ -9,6 +9,8 @@ import re
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
 
+logger = logging.getLogger("kernel")
+
 """Imports package based on the config"""
 try:
     package = config.get('Activities','package')
@@ -16,6 +18,8 @@ try:
 except: 
     importPackage = "from activities import *"
 
+
+logger.info("Importing config defined package: " + importPackage)
 exec importPackage
 
 from model.model import engine
@@ -28,7 +32,7 @@ class Kernel (threading.Thread):
     def __init__(self):
         super(Kernel, self).__init__()
         ### Initialize Logger
-        self.logger = logging.getLogger("kernel")
+        self.logger = logger
 
         self.context = zmq.Context()
         self.poller = zmq.Poller()

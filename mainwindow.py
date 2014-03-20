@@ -18,7 +18,7 @@ class MainWindow(QtGui.QMainWindow):
         self.context = None
         self.centralWidget = QtGui.QStackedWidget()
         self.setCentralWidget(self.centralWidget)
-        self.setLayout("loader")
+        self.setLayout("loading")
         
         if config.get("GUI","fullscreen") == "true":
             self.showFullScreen()

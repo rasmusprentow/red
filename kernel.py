@@ -8,7 +8,12 @@ import re
 
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
-from activities import *
+
+"""Imports module based on the config"""
+package = config.get('Activities','package')
+importPackage = "from activities." + package + " import *"
+exec importPackage
+
 from model.model import engine
 from sqlalchemy.orm import sessionmaker
 

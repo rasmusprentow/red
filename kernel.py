@@ -10,8 +10,12 @@ from red.utils.serviceFactory import ServiceFactory
 from red.config import config
 
 """Imports package based on the config"""
-package = config.get('Activities','package')
-importPackage = "from activities." + package + " import *"
+try:
+    package = config.get('Activities','package')
+    importPackage = "from activities." + package + " import *"
+except: 
+    importPackage = "from activities import *"
+
 exec importPackage
 
 from model.model import engine
@@ -55,8 +59,11 @@ class Kernel (threading.Thread):
                 self.stop()
                 
         assert re.match('^[\w-]+$', name) is not None
-        method = eval("self.activity.receive" + name.capitalize() + "Message")        
-        method(message)
+        try: 
+            method = eval("self.activity.receive" + name.capitalize() + "Message")        
+            method(message)
+        except AttributeError:
+            self.logger.fatal("The method 'receive" + name.capitalize() + "Message' is not implemented in " + str(self.activity))
 
     def stop(self):
         self.running = False
@@ -103,6 +110,14 @@ class Kernel (threading.Thread):
 
 
     def switchActivity(self, activity, data = None):
+           #name = ""
+        #"""Imports module based on the config"""
+        #try: 
+        #    name += config.get('Activities','package') + "."
+        #    
+        #except: 
+        #    pass #Silently ignore for now
+
         self.activity = eval(activity + "." + activity.capitalize())(self)
         self.activity.onCreate(data)
 

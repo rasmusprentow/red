@@ -3,7 +3,7 @@
 from red.services.base import Service
 import zmq
 import red.drivers.nfc as nfc
-from red.config import config
+from red.config import config, get_config
 from threading import Thread
 """
 API:
@@ -24,7 +24,8 @@ class Lpc(Service, Thread):
     def __init__(self, name, context=None):
         super(Lpc, self).__init__(name=name, context=context)
         port = config.get('LPC', 'port')
-        if 'lpc' in config.get('Services', 'mock'):
+
+        if get_config(config,'LPC', 'use_mock_reader', default='false') == 'true': 
             self.nfcReader = nfc.MockNfcReader(port=port)
         else:
             self.nfcReader = nfc.NfcReader(port=port)

@@ -61,7 +61,7 @@ Here is an example:
 
     from red.services.base import Service
     from threading import Thread
-    import zmq
+    
     class Keyinput(Service,Thread):
 
         def processMessage(self,message):

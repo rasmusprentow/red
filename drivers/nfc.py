@@ -208,6 +208,9 @@ class MockMessage(object):
     def getSerialAsHex(self):
         return self.data
 
+    def moreThanOneCard(self):
+        return False
+
 class MockNfcReader(object):
     """
     This class mocks and NfcReader using the key input

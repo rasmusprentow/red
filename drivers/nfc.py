@@ -23,13 +23,6 @@ class InvalidSerialNumberLpcException(LpcException):
    
     def __init__(self, msg):
         super(LpcException, self).__init__(msg)
-       
-###################################################################################
-class MoreThanOneCardPressentLpcException(LpcException):
-    """docstring for LpcException"""
-   
-    def __init__(self, msg):
-        super(LpcException, self).__init__(msg)
 
 ###################################################################################
 class StatusErrorLpcException(LpcException):
@@ -94,16 +87,16 @@ class RespondMessage(object):
         elif self.length != 6:  
             """ A serial is 4 bytes plus status and a sub-status """
             raise InvalidSerialNumberLpcException("The serial number was of insufficient length")
-        elif self.data[0] != 0x00:
-            """ The fist byte is a sub-status which must be 0x00 to indicate that only one card was present"""
-            raise MoreThanOneCardPressentLpcException("Two or more cards were present")
         elif not self.isValidBcc():
             raise BCCLpcException("The BCC was incorrect")
         else:
             data = self.data
             data.remove(0)
             return data
-        
+    def moreThanOneCard(self):
+        """ The fist byte is a sub-status which must be 0x00 to indicate that only one card was present"""
+        return self.data[0] != 0x00
+
     def getSerialAsHex(self):
         data = "".join("{:02x}".format((c)) for c in self.getSerial())
         return data
@@ -141,11 +134,7 @@ class NfcReader(object):
             self.write(cmd)
             msg = self._receiveMessage()
             
-            if msg.length == 6:
-                print "Buzz"
-                
-
-            
+            if msg.length == 6:          
                 return msg
             time.sleep(0.2)
             
@@ -199,6 +188,7 @@ class NfcReader(object):
     def clear(self):
         while self.serial.inWaiting() > 0:
             self.serial.read()
+        self.serial.flush()
 
 
     def write(self, cmd):

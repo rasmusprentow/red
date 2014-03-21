@@ -22,7 +22,7 @@ except:
 logger.info("Importing config defined package: " + importPackage)
 exec importPackage
 
-from model.model import engine
+from models.model import engine
 from sqlalchemy.orm import sessionmaker
 
 

@@ -1,5 +1,8 @@
 #activity.py
 
+from sqlalchemy.orm import sessionmaker
+from models.model import engine
+
 import logging, time
 
 
@@ -65,9 +68,11 @@ class Activity(object):
         """ 
         Session property used for sqlalchemy
         """
-        if self._session == None:
+        try:
+            return self._session
+        except AttributeError:
             self._session = sessionmaker(bind=engine)()
-        return self._session
+            return self._session
 
     def callLayoutFunc(self, func, param):
         """

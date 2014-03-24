@@ -118,8 +118,12 @@ class Kernel(threading.Thread):
         """ Switches activity to the specified activity. Data is sent to the activity """
         Activity = activity.capitalize()
 
-        package = get_config(config, 'Activities', 'package', default=None)
-        moduleName = package + "." + activity
+        package = get_config(config, 'Activities', 'package', default='activities')
+        moduleName = ''
+        if len(package) > 0:
+            moduleName += package + "." 
+        moduleName += activity
+        
         try: 
             module = importlib.import_module(moduleName) #,package=package)
             activityClass = getattr(module, Activity)

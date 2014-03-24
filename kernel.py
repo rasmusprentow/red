@@ -1,66 +1,72 @@
-
+""" The kernel package contains the Kernel 
+ Pylint: pylint2  red/kernel.py --disable=trailing-whitespace --disable=line-too-long --disable=no-member --disable=invalid-name
+"""
 import logging, logging.config
 import zmq
-import time, sys
 import threading
-import types
-import re
+import importlib
+
 
 from red.utils.serviceFactory import ServiceFactory
-from red.config import config
-
-logger = logging.getLogger("kernel")
+from red.config import config, get_config
 
 from models.model import engine
 from sqlalchemy.orm import sessionmaker
 
 
 
-class Kernel (threading.Thread):
+class Kernel(threading.Thread):
+    """ The Kernel is the core of RED. It is "the controller" of everything """
 
     def __init__(self):
         super(Kernel, self).__init__()
-        ### Initialize Logger
-        self.logger = logger
+       
+
+        self.logger = logging.getLogger("kernel")
 
         self.context = zmq.Context()
         self.poller = zmq.Poller()
-        self.running = True
+        
         self.services = ServiceFactory(self).createActiveServicesFromConfig()
         self._session = None
+        self.activity = None
+        self.running = True
 
     def getSession(self):
+        """ Retrives a singleton session instance TODO: Move to red.activity"""
         if self._session == None:
             self._session = sessionmaker(bind=engine)()
         return self._session
 
     @property
     def session(self):
+        """ Property to get static session TODO: Move to red.activity"""
         return self.getSession()
 
-    def __getattr__(self, name):
-        """ This little piece of magic delegates methods that
-        start with 'receive' to the activity """
-        if name.startswith('receive'):
-            if self.activity != None:
-                assert re.match('^[\w-]+$', name) is not None
-                return eval("self.activity." + name)
-       
-    def receive(self,name, message): 
-        if message["head"] == "echo":
-            self.logger.info("Received echo from " + name)               
-        assert re.match('^[\w-]+$', name) is not None
-        method = None
-        try: 
-            method = eval("self.activity.receive" + name.capitalize() + "Message")        
-            
-        except AttributeError:
-            self.logger.fatal("The method 'receive" + name.capitalize() + "Message' is not implemented in " + str(self.activity))
 
-        if method != None: # Change is callable
+    def receive(self, name, message):
+        """ 
+        Reveive method for any messages reeived from any service 
+        The activity will get the message in its 'receive<service>Message' method
+
+        """
+        if message["head"] == "echo":
+            self.logger.info("Received echo from " + name)             
+        methodName = "receive" + name.capitalize() + "Message"
+       
+        if hasattr(self.activity, methodName):
+            method = getattr(self.activity, methodName)
+        else:        
+            self.logger.critical("The method 'receive" + name.capitalize() + "Message' is not implemented in " + str(self.activity))
+            return 
+
+        if callable(method):
             method(message)
+        else: 
+            self.logger.critical("The so-called method named: '" + str(method) + "' is not callable")
 
     def stop(self):
+        """ Stops all running services and itself """
         self.running = False
 
         for key in self.services:
@@ -68,7 +74,7 @@ class Kernel (threading.Thread):
             if service.socketName != config.get("Sockets", "keyinput"):
                 self.logger.info("Terminating socket: " + service.socketName)
                 service.socket.send_json({"head":"stop"})
-      
+
     def startActivities(self):
         """Starting activity based on config"""
         startActivityName = config.get("Activities", "start")
@@ -89,39 +95,43 @@ class Kernel (threading.Thread):
             except KeyboardInterrupt:
                 self.logger.info("Received Key interrupt. Exiting")
                 break
+
             try:
-            
                 for key in self.services:
                     if self.services[key].socket in poller_socks:
                         self.receive(key, self.services[key].socket.recv_json())   
             except zmq.error.ContextTerminated:
-                self.logger.info ("ContextTerminated " + __file__ + " is shutting down");
+                self.logger.info("ContextTerminated " + __file__ + " is shutting down")
                 self.running = False
                 break
 
 
     def send(self, service, message):
+        """ 
+        Sends a message to the specified service 
+        """
         assert service in self.services, ("The Specified service: " + str(service) + " was not in services: " + str(self.services))
         self.services[service].socket.send_json(message)
 
 
-    def switchActivity(self, activity, data = None):
+    def switchActivity(self, activity, data=None):
+        """ Switches activity to the specified activity. Data is sent to the activity """
         Activity = activity.capitalize()
 
-        try:
-            package = config.get('Activities','package')
-            importPackage = "from activities." + package + "." + activity + " import " + Activity
-        except: 
-            importPackage = "from activities." + activity + " import " + Activity
-
-        logger.info("Importing config defined package: " + importPackage)
-        exec importPackage
-
-        self.activity = eval(Activity)(self)
-        self.activity.onCreate(data)
-
-    def emptyQueue(self,name):
+        package = get_config(config, 'Activities', 'package', default=None)
+        moduleName = package + "." + activity
+        try: 
+            module = importlib.import_module(moduleName) #,package=package)
+            activityClass = getattr(module, Activity)
+            self.activity = activityClass(self)
+            self.activity.onCreate(data)
+        except ImportError as e: 
+            self.logger.critical("The module '%s' did not exist as an activity in package: %s. Exception: %s" % (activity, package, str(e)))
       
+        
+
+    def emptyQueue(self, name):
+        """ Empties the ZMQ queue """
         meta = self.services[name]
        
         while meta.socket.poll(2) != 0:

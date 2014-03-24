@@ -102,10 +102,12 @@ class ServiceFactory (object):
         self.module.poller.register(meta.socket, zmq.POLLIN)
         
         if not (meta.isSlaveService):
-            ## We have really no idea whether the slave is active or not.
-            ## The slave will tell os when it connects. 
-            ## To connect the slave, someone must actually turn on a device
-            ## Physically turn on a device. 
+            """ 
+            We have really no idea whether the slave is active or not.
+            The slave will tell os when it connects. 
+            To connect the slave, someone must actually turn on a device
+            Physically turn on a device. 
+            """
            
             meta.socket.send_json({"head":"echo"})
 

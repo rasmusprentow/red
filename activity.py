@@ -65,8 +65,9 @@ class Activity(object):
         """ 
         Session property used for sqlalchemy
         """
-        return self.kernel.getSession()
-   
+        if self._session == None:
+            self._session = sessionmaker(bind=engine)()
+        return self._session
 
     def callLayoutFunc(self, func, param):
         """

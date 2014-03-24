@@ -10,11 +10,6 @@ import importlib
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config, get_config
 
-from models.model import engine
-from sqlalchemy.orm import sessionmaker
-
-
-
 class Kernel(threading.Thread):
     """ The Kernel is the core of RED. It is "the controller" of everything """
 
@@ -32,17 +27,9 @@ class Kernel(threading.Thread):
         self.activity = None
         self.running = True
 
-    def getSession(self):
-        """ Retrives a singleton session instance TODO: Move to red.activity"""
-        if self._session == None:
-            self._session = sessionmaker(bind=engine)()
-        return self._session
+ 
 
-    @property
-    def session(self):
-        """ Property to get static session TODO: Move to red.activity"""
-        return self.getSession()
-
+   
 
     def receive(self, name, message):
         """ 
@@ -123,7 +110,7 @@ class Kernel(threading.Thread):
         if len(package) > 0:
             moduleName += package + "." 
         moduleName += activity
-        
+
         try: 
             module = importlib.import_module(moduleName) #,package=package)
             activityClass = getattr(module, Activity)

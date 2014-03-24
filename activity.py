@@ -1,6 +1,6 @@
 #activity.py
 
-import logging
+import logging, time
 
 
 class Activity(object):
@@ -26,13 +26,15 @@ class Activity(object):
         """
         pass
 
-    def setLayout(self,layout):
+    def setLayout(self,layout,sleep=0):
         """ 
         Change the layout of the screen
         Layout is string that tells which layout file to load.
         If, for instance, you pass "<folder>/<layout>" the file layouts/<folder>/<layout>.qml get loaded. 
         """
         self.kernel.send("display", {"head":"set_layout", "data":layout})
+        if sleep > 0:
+            time.sleep(sleep)
 
     def send(self,service,message):
         """ 

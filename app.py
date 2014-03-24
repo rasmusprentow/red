@@ -9,6 +9,8 @@ from red.kernel      import Kernel
 
 class Red(object):
 
+    def __init__(configFile='config/init.conf'):
+        self.configFile = configFile
 
     def start(self):
         ### Initialize Logger
@@ -18,6 +20,11 @@ class Red(object):
         
         app = QtGui.QApplication(sys.argv)
         
+        logger.info('Reading config; ' + conffile) 
+        config.read(self.configFile)
+
+
+
         kernel = Kernel()
         
         ##### This is QT load UI ######

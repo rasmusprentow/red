@@ -50,11 +50,15 @@ class Kernel (threading.Thread):
         if message["head"] == "echo":
             self.logger.info("Received echo from " + name)               
         assert re.match('^[\w-]+$', name) is not None
+        method = None
         try: 
             method = eval("self.activity.receive" + name.capitalize() + "Message")        
-            method(message)
+            
         except AttributeError:
             self.logger.fatal("The method 'receive" + name.capitalize() + "Message' is not implemented in " + str(self.activity))
+
+        if method != None: # Change is callable
+            method(message)
 
     def stop(self):
         self.running = False

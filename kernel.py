@@ -57,7 +57,9 @@ class Kernel (threading.Thread):
                 assert re.match('^[\w-]+$', name) is not None
                 return eval("self.activity." + name)
        
-    def receive(self,name, message):                
+    def receive(self,name, message): 
+        if message["head"] == "echo":
+            self.logger.info("Received echo from " + name)               
         assert re.match('^[\w-]+$', name) is not None
         try: 
             method = eval("self.activity.receive" + name.capitalize() + "Message")        

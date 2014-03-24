@@ -9,7 +9,7 @@ from red.kernel      import Kernel
 
 class Red(object):
 
-    def __init__(configFile='config/init.conf'):
+    def __init__(self, configFile='config/init.conf'):
         self.configFile = configFile
 
     def start(self):
@@ -20,7 +20,7 @@ class Red(object):
         
         app = QtGui.QApplication(sys.argv)
         
-        logger.info('Reading config; ' + conffile) 
+        logger.info('Reading config; ' + self.configFile) 
         config.read(self.configFile)
 
 

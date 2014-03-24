@@ -106,6 +106,7 @@ class ServiceFactory (object):
             ## The slave will tell os when it connects. 
             ## To connect the slave, someone must actually turn on a device
             ## Physically turn on a device. 
+           
             meta.socket.send_json({"head":"echo"})
 
 

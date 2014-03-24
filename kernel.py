@@ -57,11 +57,7 @@ class Kernel (threading.Thread):
                 assert re.match('^[\w-]+$', name) is not None
                 return eval("self.activity." + name)
        
-    def receive(self,name, message):
-        if message['head'] == "key_pressed":
-            if message['data'] == "s":
-                self.stop()
-                
+    def receive(self,name, message):                
         assert re.match('^[\w-]+$', name) is not None
         try: 
             method = eval("self.activity.receive" + name.capitalize() + "Message")        
@@ -131,5 +127,3 @@ class Kernel (threading.Thread):
        
         while meta.socket.poll(2) != 0:
             meta.socket.recv_json()
-
-     

@@ -5,13 +5,6 @@ import sys, getopt, logging
 
 global config
 
-# Read command line args
-#myopts, args = getopt.getopt(sys.argv[1:],"c:")
- 
-
-#for o, a in myopts:
-#    if o == '-c':
-#        conffile=a
 logger = logging.getLogger('kernel')
 
 ### Load config

@@ -11,17 +11,6 @@ from red.config import config
 
 logger = logging.getLogger("kernel")
 
-"""Imports package based on the config"""
-try:
-    package = config.get('Activities','package')
-    importPackage = "from activities." + package + " import *"
-except: 
-    importPackage = "from activities import *"
-
-
-logger.info("Importing config defined package: " + importPackage)
-exec importPackage
-
 from models.model import engine
 from sqlalchemy.orm import sessionmaker
 
@@ -75,6 +64,7 @@ class Kernel (threading.Thread):
                 service.socket.send_json({"head":"stop"})
       
     def startActivities(self):
+        """Starting activity based on config"""
         startActivityName = config.get("Activities", "start")
         self.logger.info("Starting activity: " + startActivityName)
         self.switchActivity(startActivityName)
@@ -110,15 +100,18 @@ class Kernel (threading.Thread):
 
 
     def switchActivity(self, activity, data = None):
-           #name = ""
-        #"""Imports module based on the config"""
-        #try: 
-        #    name += config.get('Activities','package') + "."
-        #    
-        #except: 
-        #    pass #Silently ignore for now
+        Activity = activity.capitalize()
 
-        self.activity = eval(activity + "." + activity.capitalize())(self)
+        try:
+            package = config.get('Activities','package')
+            importPackage = "from activities." + package + "." + activity + " import " + Activity
+        except: 
+            importPackage = "from activities." + activity + " import " + Activity
+
+        logger.info("Importing config defined package: " + importPackage)
+        exec importPackage
+
+        self.activity = eval(Activity)(self)
         self.activity.onCreate(data)
 
     def emptyQueue(self,name):

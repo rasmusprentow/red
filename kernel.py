@@ -108,13 +108,15 @@ class Kernel(threading.Thread):
         moduleName += activity
 
         try: 
-            module = importlib.import_module(moduleName) #,package=package)
-            activityClass = getattr(module, Activity)
-            self.activity = activityClass(self)
-            self.activity.onCreate(data)
+            self.logger.debug("Importing " + moduleName)
+            module = importlib.import_module(moduleName) #,package=package)     
         except ImportError as e: 
             self.logger.critical("The module '%s' did not exist as an activity in package: %s. Exception: %s" % (activity, package, str(e)))
-      
+            return
+     
+        activityClass = getattr(module, Activity)
+        self.activity = activityClass(self)
+        self.activity.onCreate(data) 
         
 
     def emptyQueue(self, name):

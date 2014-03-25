@@ -33,12 +33,8 @@ class Lpc(Service, Thread):
 
     def processMessage(self, message):
         if(message['head'] == "get_pocket"):
-            serial = self.getPocket()
-            
-            message = {'head' : 'pocket', 'data' : serial}
-            self.send(message)
+            self.getPocket()
             return True
-
         elif(message['head'] == "activate_buzzer"):
             self.nfcReader.activateBuzzer()
             return True
@@ -50,5 +46,12 @@ class Lpc(Service, Thread):
             
 
     def getPocket(self):
-        message = self.nfcReader.getPocketData()
-        return message.getSerialAsHex()
+        self.nfcReader.clear()
+        
+        pocketMessage = self.nfcReader.getPocketData()
+        while pocketMessage.moreThanOneCard():
+            pocketMessage = self.nfcReader.getPocketData()
+
+        serial = pocketMessage.getSerialAsHex()
+        message = {'head' : 'pocket', 'data' : serial}
+        self.send(message)

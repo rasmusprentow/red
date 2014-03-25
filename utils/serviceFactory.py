@@ -1,42 +1,53 @@
 #factory.py
+""" Defines classes for the service factory which creates services """
 
 import zmq
-import os
 
 
 from red.config import config
 from services import *
 from red.services import *
 
-#from services.keyinput import Keyinput
-
 import logging, configparser
 
 logger = logging.getLogger("kernel.ServiceFactory")
 
-class ServiceMeta (): pass
-       
-  
+
+class ServiceMeta (): 
+    """ Used to keep meta information of a service. """
+
+    def __init__(self):
+        self.socketName         = None  
+        self.serviceName        = None
+        self.socket             = None
+        self.isSlaveService     = None
+        self.isMasterService    = None
+        self.service            = None
+              
       
 class ServiceFactory (object):
     
     def __init__(self,module):
         self.module = module
+        try:
+            self.masters = config.get('Services','masters').split(",")
+        except configparser.NoOptionError:
+            self.masters = ['']
+            logger.warning("The 'masters' directory was missing in config")
+        
+        try: 
+            self.slaves = config.get('Services','slaves').split(",")
+        except configparser.NoOptionError:
+            self.slaves = ['']
+            logger.warning("The 'slaves' directory was missing in config")
 
     def createActiveServicesFromConfig(self):
 
         servicesToCreate = config.get('Services','Services').split(",")
-        try:
-            servicesToCreate += config.get('Services','slaves').split(",")
-        except configparser.NoOptionError:
-            logger.warning("The 'slaves' directory was missing in config")
+        servicesToCreate += self.slaves
+        servicesToCreate += self.masters 
 
-        try: 
-            servicesToCreate += config.get('Services','masters').split(",")
-        except configparser.NoOptionError:
-            logger.warning("The 'slaves' directory was missing in config")
-
-        logger.info("Creating the following services: " + str(servicesToCreate))
+        logger.info("Creating the following services: " + str(servicesToCreate)) 
   
         
         serviceList = dict()
@@ -45,39 +56,27 @@ class ServiceFactory (object):
             logger.info("Creating service: " + service)
             if service == '' or service == None: 
                 continue
-            serviceList[service] =self.createService(service)
+            serviceList[service] = self.createService(service)
 
         return serviceList
 
 
     
     def createService(self, serviceName ):
-
+        """ Returns a meta object """
         meta = ServiceMeta()
         
         meta.socketName = config.get('Sockets', serviceName)
         
         meta.serviceName = serviceName
-      
-       
+
         meta.socket = self.module.context.socket(zmq.PAIR)
        
         
-
         """ Determine if this is a slave service """
-        meta.isSlaveService = False
-        try:
-            meta.isSlaveService = meta.serviceName in config.get('Services','slaves')
-        except configparser.NoOptionError:
-            logger.warning("The 'slaves' directory was missing in config")
-
-        """ Determine if this is a master service """
-        meta.isMasterService = False
-        try:
-            meta.isMasterService = meta.serviceName in config.get('Services','masters')
-        except configparser.NoOptionError:
-            logger.warning("The 'masters' directory was missing in config")
-
+        meta.isSlaveService = meta.serviceName in self.slaves
+        meta.isMasterService = meta.serviceName in self.masters
+       
         """ It cannot be both slave and master """
         assert not (meta.isSlaveService and meta.isMasterService)
 
@@ -102,10 +101,13 @@ class ServiceFactory (object):
         self.module.poller.register(meta.socket, zmq.POLLIN)
         
         if not (meta.isSlaveService):
-            ## We have really no idea whether the slave is active or not.
-            ## The slave will tell os when it connects. 
-            ## To connect the slave, someone must actually turn on a device
-            ## Physically turn on a device. 
+            """ 
+            We have really no idea whether the slave is active or not.
+            The slave will tell os when it connects. 
+            To connect the slave, someone must actually turn on a device
+            Physically turn on a device. 
+            """
+           
             meta.socket.send_json({"head":"echo"})
 
 

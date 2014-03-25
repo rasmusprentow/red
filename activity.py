@@ -41,7 +41,7 @@ class Activity(object):
             time.sleep(sleep)
 
     def send(self,service,message):
-        """ 
+        """
         Send message to any service. 
         Message must be a dictionary.
         """
@@ -69,11 +69,9 @@ class Activity(object):
         """ 
         Session property used for sqlalchemy
         """
-        try:
-            return self._session
-        except AttributeError:
+        if not hasattr(self, "_session") or self._session == None:
             self._session = sessionmaker(bind=engine)()
-            return self._session
+        return self._session
 
     def callLayoutFunc(self, func, param):
         """

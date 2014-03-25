@@ -1,6 +1,6 @@
 
 from PySide import QtCore, QtGui, QtUiTools, QtDeclarative
-from red.config import config
+from red.config import config,get_config
 from services.display import Display
 
 class MainWindow(QtGui.QMainWindow):
@@ -20,7 +20,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(self.centralWidget)
         self.setLayout("loading")
         
-        if config.get("GUI","fullscreen") == "true":
+        if get_config(config,"GUI","fullscreen",default='false') == "true":
             self.showFullScreen()
         else:
             self.resize(480,272)
@@ -37,10 +37,10 @@ class MainWindow(QtGui.QMainWindow):
         self.view = QtDeclarative.QDeclarativeView()
         self.view.setSource(QtCore.QUrl.fromLocalFile( './layouts/'+ layout +'.qml' ))
         self.view.setResizeMode( QtDeclarative.QDeclarativeView.SizeRootObjectToView )
-        if config.get("GUI","cursor") == "true":
-            pass
-        else:
+
+        if get_config(config,"GUI","cursor",default="false") != "true":
             self.view.setCursor(QtCore.Qt.BlankCursor)
+
         qcontext = self.view.rootContext() 
         qcontext.setContextProperty("context",Display._instance)
  

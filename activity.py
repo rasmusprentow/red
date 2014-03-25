@@ -32,7 +32,7 @@ class Activity(object):
         """
         pass
 
-    def setLayout(self, layout,sleep=0):
+    def setLayout(self, layout, sleep=0):
         """
         Change the layout of the screen
         Layout is string that tells which layout file to load.
@@ -75,16 +75,11 @@ class Activity(object):
             self._session = sessionmaker(bind=engine)()
         return self._session
 
-    def callLayoutFunc(self, func, param):
-        """
-        Deprecated. Use invokeLayoutFunction
-        """
-        self.logger.warning("callLayoutFunc is deprecated, use invokeLayoutFunction. Please remove the old when fixed")
-
     def invokeLayoutFunction(self, function, param):
         """
         Use this method to update anything on the layout. 
         Function is the name of the function to be called in the layout. 
-        Param is paremeter for that function. 
+        Param is parameter for that function. 
         """
         self.send("display", {"head":"call_func", "data":{"func":function, "param":param}})
+        

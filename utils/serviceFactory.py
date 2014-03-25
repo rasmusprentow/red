@@ -30,15 +30,15 @@ class ServiceFactory (object):
     def __init__(self,module):
         self.module = module
         try:
-            self.masters = config.get('Services','masters')
+            self.masters = config.get('Services','masters').split(",")
         except configparser.NoOptionError:
-            self.masters = []
+            self.masters = ['']
             logger.warning("The 'masters' directory was missing in config")
         
         try: 
-            self.slaves = config.get('Services','slaves')
+            self.slaves = config.get('Services','slaves').split(",")
         except configparser.NoOptionError:
-            self.slaves = []
+            self.slaves = ['']
             logger.warning("The 'slaves' directory was missing in config")
 
     def createActiveServicesFromConfig(self):
@@ -56,7 +56,7 @@ class ServiceFactory (object):
             logger.info("Creating service: " + service)
             if service == '' or service == None: 
                 continue
-            serviceList[service] =self.createService(service)
+            serviceList[service] = self.createService(service)
 
         return serviceList
 

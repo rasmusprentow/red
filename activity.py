@@ -16,6 +16,7 @@ class Activity(object):
         super(Activity, self).__init__()
         self.kernel = kernel
         self.logger = logging.getLogger('activity')
+        self._session = None
     
 
     def onCreate(self, data=None):

@@ -27,10 +27,6 @@ class Kernel(threading.Thread):
         self.activity = None
         self.running = True
 
- 
-
-   
-
     def receive(self, name, message):
         """ 
         Reveive method for any messages reeived from any service 

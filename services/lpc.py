@@ -28,12 +28,12 @@ class Lpc(Service, Thread):
         if get_config(config,'LPC', 'use_mock_reader', default='false') == 'true': 
             self.nfcReader = nfc.MockNfcReader(port=port)
         else:
-            self.nfcReader = nfc.NfcReader(port=port)
+            self.nfcReader = nfc.NfcReader(port=port,nfcListener=self.onNfcMessage)
         self.nfcReader.start()
 
     def processMessage(self, message):
         if(message['head'] == "get_tag"):
-            self.getTag()
+            self.nfcReader.getTagData()
             return True
         elif(message['head'] == "activate_buzzer"):
             self.nfcReader.activateBuzzer()
@@ -44,14 +44,18 @@ class Lpc(Service, Thread):
         else:
             return False
             
-
-    def getTag(self):
-        self.nfcReader.clear()
+    def onNfcMessage(self,message):
         
-        tagData = self.nfcReader.getTagData()
-        while tagData.moreThanOneCard():
-            tagData = self.nfcReader.getTagData()
+        if message.moreThanOneCard():
+            self.nfcReader.getTagData()
+            return
 
         serial = tagData.getSerialAsHex()
         message = {'head' : 'tag', 'data' : serial}
         self.send(message)
+        self.nfcReader.clear()
+
+
+        
+
+        

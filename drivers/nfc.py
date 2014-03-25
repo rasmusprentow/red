@@ -106,6 +106,26 @@ class RespondMessage(object):
         for value in self.data:
             valid = valid ^ value
         return valid == self.bcc
+####################################################################################
+class NfcWoker(threading.Thread):
+
+
+
+    def setNfcListener(self, listener):
+        self.listener = listener
+
+    def run(self):
+         while self.running:
+            cmd = Command(0x25,[0x26,0x00])  
+            self.write(cmd)
+            msg = self._receiveMessage()
+            
+            if msg.length == 6:          
+                self.listener(msg)
+                return
+            time.sleep(0.2)
+            
+
 
 ###################################################################################
 class NfcReader(object):
@@ -114,30 +134,31 @@ class NfcReader(object):
     The class will initiate connection once constructed.
     """
 
-    def __init__(self,port="/dev/ttyUSB0",baudrate=9600):
+    def __init__(self,port="/dev/ttyUSB0",baudrate=9600, nfcListener=None):
         self.port = port
         self.baudrate = baudrate
         self.stationId = 00;
+        
+        self.worker = NfcWoker()
+        self.worker.setNfcListener(nfcListener)
        
 
     def start(self,ser=None):
         self.serial = ser or serial.Serial(self.port, self.baudrate)
 
-    """ 
-    Puts the reader in read mode and 
-    returns a serial when there is one
-    """
+ 
+   
     def getTagData(self):
+        """ 
+        Puts the reader in read mode and 
+        returns a serial when there is one
+        """
+        if self.worker.running == True:
+            return
         
-        while True:
-            cmd = Command(0x25,[0x26,0x00])  
-            self.write(cmd)
-            msg = self._receiveMessage()
-            
-            if msg.length == 6:          
-                return msg
-            time.sleep(0.2)
-            
+        self.worker.running = True
+        self.worker.start()
+       
     def _receiveMessage(self):
         index = 0
         msg = RespondMessage()

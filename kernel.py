@@ -4,8 +4,7 @@
 import logging, logging.config
 import zmq
 import threading
-import types
-import re
+
 
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
@@ -14,7 +13,8 @@ logger = logging.getLogger("kernel")
 
 import importlib
 
-
+from sqlalchemy.orm import sessionmaker
+from models.model import engine
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config, get_config
 
@@ -34,6 +34,7 @@ class Kernel(threading.Thread):
         self._session = None
         self.activity = None
         self.running = True
+        self._session = None
 
     def receive(self, name, message):
         """ 
@@ -104,6 +105,17 @@ class Kernel(threading.Thread):
         assert service in self.services, ("The Specified service: " + str(service) + " was not in services: " + str(self.services))
         self.services[service].socket.send_json(message)
 
+
+    @property
+    def session(self):
+        """ 
+        Session property used for sqlalchemy
+        """
+        if not hasattr(self, "_session") or self._session == None:
+            self._session = sessionmaker(bind=engine)()
+        return self._session
+
+    
 
     def switchActivity(self, activity, data=None):
         """ Switches activity to the specified activity. Data is sent to the activity """

@@ -4,6 +4,14 @@
 import logging, logging.config
 import zmq
 import threading
+import types
+import re
+
+from red.utils.serviceFactory import ServiceFactory
+from red.config import config
+
+logger = logging.getLogger("kernel")
+
 import importlib
 
 

@@ -1,6 +1,7 @@
 import serial, time
 
-import logging
+import logging, threading
+from red.config import config, get_config
 logger = logging.getLogger(__file__)
 
 
@@ -107,6 +108,57 @@ class RespondMessage(object):
             valid = valid ^ value
         return valid == self.bcc
 
+
+####################################################################################
+
+class MockMessage(object):
+    def __init__(self, data):
+        self.data = data
+
+    def getSerialAsHex(self):
+        return self.data
+
+    def moreThanOneCard(self):
+        return False
+
+####################################################################################
+class NfcWoker(threading.Thread):
+
+    running = False
+
+
+
+    def setNfcListener(self, listener):
+        self.listener = listener
+
+    def run(self):
+         self.running = True
+         while self.running:
+            cmd = Command(0x25,[0x26,0x00])  
+            self.write(cmd)
+            msg = self._receiveMessage()
+            
+            if msg.length == 6:          
+                self.running = False
+                self.listener(msg)
+                return
+            time.sleep(0.2)
+            
+
+class MockNfcWoker(threading.Thread):
+
+    running = False
+
+    def setNfcListener(self, listener):
+        self.listener = listener
+
+    def run(self):
+        self.running = True
+        print "sdadas"
+        self.running = False
+        self.listener(MockMessage(raw_input()))
+            
+
 ###################################################################################
 class NfcReader(object):
     """
@@ -114,30 +166,33 @@ class NfcReader(object):
     The class will initiate connection once constructed.
     """
 
-    def __init__(self,port="/dev/ttyUSB0",baudrate=9600):
+    def __init__(self,port="/dev/ttyUSB0",baudrate=9600, nfcListener=None):
         self.port = port
         self.baudrate = baudrate
         self.stationId = 00;
-       
+        self.listener = nfcListener
+        self.reloadWorker()
 
     def start(self,ser=None):
+
         self.serial = ser or serial.Serial(self.port, self.baudrate)
 
-    """ 
-    Puts the reader in read mode and 
-    returns a serial when there is one
-    """
-    def getPocketData(self):
-        
-        while True:
-            cmd = Command(0x25,[0x26,0x00])  
-            self.write(cmd)
-            msg = self._receiveMessage()
-            
-            if msg.length == 6:          
-                return msg
-            time.sleep(0.2)
-            
+    def reloadWorker(self):
+        self.worker = NfcWoker()
+        self.worker.setNfcListener(self.listener)
+
+
+
+    def getTagData(self):
+        """ 
+        Puts the reader in read mode and 
+        returns a serial when there is one
+        """
+        if self.worker.running == True:
+            return
+        self.reloadWorker()
+        self.worker.start()
+       
     def _receiveMessage(self):
         index = 0
         msg = RespondMessage()
@@ -198,48 +253,17 @@ class NfcReader(object):
         self.serial.write(msg)
 
 
+########################################################################
+class MockNfcReader(NfcReader):
 
- ###################################################################################
-
-class MockMessage(object):
-    def __init__(self, data):
-        self.data = data
-
-    def getSerialAsHex(self):
-        return self.data
-
-    def moreThanOneCard(self):
-        return False
-
-class MockNfcReader(object):
-    """
-    This class mocks and NfcReader using the key input
-    The class will initiate connection once constructed.
-    """
-
-    def __init__(self,port="/dev/ttyUSB0",baudrate=9600):
-       pass
-       
 
     def start(self,ser=None):
+
         pass
-
-    """ 
-    Puts the reader in read mode and 
-    returns a serial when there is one
-    """
-    def getPocketData(self):
-        
-        return MockMessage(raw_input())
-            
-
-    def activateBuzzer(self): 
-        print "Buzzzzzzzz"
-        
-
+ 
     def clear(self):
         pass
 
-
-    def write(self, cmd):
-        pass
+    def reloadWorker(self):
+        self.worker = MockNfcWoker()
+        self.worker.setNfcListener(self.listener)

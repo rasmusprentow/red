@@ -3,8 +3,7 @@
 The activity module it the mother of all other activities
 """
 
-from sqlalchemy.orm import sessionmaker
-from models.model import engine
+
 
 import logging, time
 
@@ -71,9 +70,7 @@ class Activity(object):
         """ 
         Session property used for sqlalchemy
         """
-        if not hasattr(self, "_session") or self._session == None:
-            self._session = sessionmaker(bind=engine)()
-        return self._session
+        return self.kernel.session
 
     def invokeLayoutFunction(self, function, param):
         """

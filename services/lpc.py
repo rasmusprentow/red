@@ -26,14 +26,14 @@ class Lpc(Service, Thread):
         port = config.get('LPC', 'port')
 
         if get_config(config,'LPC', 'use_mock_reader', default='false') == 'true': 
-            self.nfcReader = nfc.MockNfcReader(port=port)
+            self.nfcReader = nfc.MockNfcReader(port=port,nfcListener=self.onNfcMessage)
         else:
-            self.nfcReader = nfc.NfcReader(port=port)
+            self.nfcReader = nfc.NfcReader(port=port,nfcListener=self.onNfcMessage)
         self.nfcReader.start()
 
     def processMessage(self, message):
-        if(message['head'] == "get_pocket"):
-            self.getPocket()
+        if(message['head'] == "get_tag"):
+            self.nfcReader.getTagData()
             return True
         elif(message['head'] == "activate_buzzer"):
             self.nfcReader.activateBuzzer()
@@ -44,14 +44,18 @@ class Lpc(Service, Thread):
         else:
             return False
             
-
-    def getPocket(self):
-        self.nfcReader.clear()
+    def onNfcMessage(self,tagData):
         
-        pocketMessage = self.nfcReader.getPocketData()
-        while pocketMessage.moreThanOneCard():
-            pocketMessage = self.nfcReader.getPocketData()
+        if tagData.moreThanOneCard():
+            self.nfcReader.getTagData()
+            return
 
-        serial = pocketMessage.getSerialAsHex()
-        message = {'head' : 'pocket', 'data' : serial}
+        serial = tagData.getSerialAsHex()
+        message = {'head' : 'tag', 'data' : serial}
         self.send(message)
+        self.nfcReader.clear()
+
+
+        
+
+        

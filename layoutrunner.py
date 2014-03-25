@@ -1,4 +1,6 @@
-#windowrunner.py 
+""" 
+The layoutrunner can be used to run a layout and see it without running the kernel 
+"""
 
 
 

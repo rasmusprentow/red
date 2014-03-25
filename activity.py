@@ -1,4 +1,7 @@
 #activity.py
+"""
+The activity module it the mother of all other activities
+"""
 
 from sqlalchemy.orm import sessionmaker
 from models.model import engine
@@ -8,10 +11,9 @@ import logging, time
 
 class Activity(object):
     """
-    Inherit from this class to create an activity. 
-    Activities are what some people call controllers. 
-
-    If you expect to receive something from a service, say NFC service, you must implement 
+    Inherit from this class to create an activity.
+    Activities are what some people call controllers.
+    If you expect to receive something from a service, say NFC service, you must implement
     a proper receive method. In this case. receiveNfcMessage(self, message)
     """
 
@@ -30,8 +32,8 @@ class Activity(object):
         """
         pass
 
-    def setLayout(self,layout,sleep=0):
-        """ 
+    def setLayout(self, layout,sleep=0):
+        """
         Change the layout of the screen
         Layout is string that tells which layout file to load.
         If, for instance, you pass "<folder>/<layout>" the file layouts/<folder>/<layout>.qml get loaded. 
@@ -40,23 +42,23 @@ class Activity(object):
         if sleep > 0:
             time.sleep(sleep)
 
-    def send(self,service,message):
-        """
+    def send(self, service, message):
+        """ 
         Send message to any service. 
         Message must be a dictionary.
         """
         self.kernel.send(service, message)
 
     
-    def switchActivity(self,activity,data=None):
+    def switchActivity(self, activity, data=None):
         """ 
         Switch to the specified activity
         The data param gets sent to the new activity's onCreate method.
         """
-        self.kernel.switchActivity(activity,data)
+        self.kernel.switchActivity(activity, data)
 
 
-    def emptyQueue(self,name):
+    def emptyQueue(self, name):
         """
         Clears the queue for any inbound message from the specified service. 
         Use this method with care as you risk important messages are deleted. 

@@ -1,6 +1,4 @@
-
-
-#test_transactor.py
+#test_kernel.py
 
 import unittest
 from red.kernel import Kernel
@@ -46,8 +44,6 @@ class Test_KernelTest(unittest.TestCase):
         config.set('Services','services','')
         config.set('Activities','start','test_kernel')
         config.set('Activities','package','red.tests')
-        
-        pass
  
     def tearDown(self):
         """Call after every test case."""

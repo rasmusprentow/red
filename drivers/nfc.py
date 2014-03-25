@@ -127,7 +127,7 @@ class NfcReader(object):
     Puts the reader in read mode and 
     returns a serial when there is one
     """
-    def getPocketData(self):
+    def getTagData(self):
         
         while True:
             cmd = Command(0x25,[0x26,0x00])  
@@ -228,7 +228,7 @@ class MockNfcReader(object):
     Puts the reader in read mode and 
     returns a serial when there is one
     """
-    def getPocketData(self):
+    def getTagData(self):
         
         return MockMessage(raw_input())
             

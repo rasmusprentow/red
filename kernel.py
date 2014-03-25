@@ -108,7 +108,7 @@ class Kernel(threading.Thread):
     def switchActivity(self, activity, data=None):
         """ Switches activity to the specified activity. Data is sent to the activity """
         Activity = activity.capitalize()
-
+        self.logger.debug("Switching activity to " + activity)
         package = get_config(config, 'Activities', 'package', default='activities')
         moduleName = ''
         if len(package) > 0:

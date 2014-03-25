@@ -32,8 +32,8 @@ class Lpc(Service, Thread):
         self.nfcReader.start()
 
     def processMessage(self, message):
-        if(message['head'] == "get_pocket"):
-            self.getPocket()
+        if(message['head'] == "get_tag"):
+            self.getTag()
             return True
         elif(message['head'] == "activate_buzzer"):
             self.nfcReader.activateBuzzer()
@@ -45,13 +45,13 @@ class Lpc(Service, Thread):
             return False
             
 
-    def getPocket(self):
+    def getTag(self):
         self.nfcReader.clear()
         
-        pocketMessage = self.nfcReader.getPocketData()
-        while pocketMessage.moreThanOneCard():
-            pocketMessage = self.nfcReader.getPocketData()
+        tagData = self.nfcReader.getTagData()
+        while tagData.moreThanOneCard():
+            tagData = self.nfcReader.getTagData()
 
-        serial = pocketMessage.getSerialAsHex()
-        message = {'head' : 'pocket', 'data' : serial}
+        serial = tagData.getSerialAsHex()
+        message = {'head' : 'tag', 'data' : serial}
         self.send(message)

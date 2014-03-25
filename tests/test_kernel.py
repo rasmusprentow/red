@@ -36,42 +36,50 @@ class Test_KernelTest(unittest.TestCase):
         except:
             pass
 
-        config.set('Shop','voucher_percentage','33')
-        config.set('Shop','fee_percentage','1')
-        config.set('Shop','name','enviclean')
+        config.set('Shop', 'voucher_percentage', '33')
+        config.set('Shop', 'fee_percentage', '1')
+        config.set('Shop', 'name', 'enviclean')
         
 
-        config.set('Services','services','')
-        config.set('Activities','start','test_kernel')
-        config.set('Activities','package','red.tests')
+        config.set('Services', 'services', '')
+        config.set('Activities', 'start', 'test_kernel')
+        config.set('Activities', 'package', 'red.tests')
+
+        self.kernel = Kernel()
  
     def tearDown(self):
         """Call after every test case."""
         pass
  
     def testReceive(self):
-        
-        kernel = Kernel()
+        """ Tests the receive method """
 
         """ Should not give an exception, but should log some stuff """
-        kernel.receive("self.stop()", {"head" : "echo" })
+        self.kernel.receive("self.stop()", {"head" : "echo"})
 
         """ This tests that the message gets delivered to the activity"""
-        kernel.activity = MockActivity(kernel)
-        kernel.receive("test", {"head" : "echo" })
-        self.assertTrue(True,kernel.activity.received)
+        self.kernel.activity = MockActivity(self.kernel)
+        self.kernel.receive("test", {"head" : "echo"})
+        self.assertTrue(True, self.kernel.activity.received)
 
     def testSwitchActivity(self):
-        kernel = Kernel()
+        """ Tests switch activity """
 
         """ This tests that it does not throw renegade exceptions"""
-        kernel.switchActivity("something_nonexistant")
+        self.kernel.switchActivity("something_nonexistant")
 
         """ This tests that it does not throw renegade exceptions"""
-        kernel.switchActivity("test_kernel")
-        kernel.receive("test", {"head" : "echo" })
-        self.assertTrue(Test_kernel.received )
+        self.kernel.switchActivity("test_kernel")
+        self.kernel.receive("test", {"head" : "echo"})
+        self.assertTrue(Test_kernel.received)
 
+    def testSend(self):
+        try: 
+
+            self.kernel.send("test", {"head" : "hello"})
+            self.assertTrue(False)
+        except Exception:
+            self.assertTrue(True)
 
 if __name__ == "__main__":
     unittest.main() # run all tests

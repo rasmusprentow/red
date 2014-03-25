@@ -26,7 +26,7 @@ class Lpc(Service, Thread):
         port = config.get('LPC', 'port')
 
         if get_config(config,'LPC', 'use_mock_reader', default='false') == 'true': 
-            self.nfcReader = nfc.MockNfcReader(port=port)
+            self.nfcReader = nfc.MockNfcReader(port=port,nfcListener=self.onNfcMessage)
         else:
             self.nfcReader = nfc.NfcReader(port=port,nfcListener=self.onNfcMessage)
         self.nfcReader.start()
@@ -44,9 +44,9 @@ class Lpc(Service, Thread):
         else:
             return False
             
-    def onNfcMessage(self,message):
+    def onNfcMessage(self,tagData):
         
-        if message.moreThanOneCard():
+        if tagData.moreThanOneCard():
             self.nfcReader.getTagData()
             return
 

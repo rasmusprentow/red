@@ -42,6 +42,9 @@ class Kernel(threading.Thread):
         The activity will get the message in its 'receive<service>Message' method
 
         """
+        if message["head"] == "stop":
+            self.stop()
+            return
         if message["head"] == "echo":
             self.logger.info("Received echo from " + name)             
         methodName = "receive" + name.capitalize() + "Message"
@@ -63,7 +66,7 @@ class Kernel(threading.Thread):
 
         for key in self.services:
             service = self.services[key]
-            if service.socketName != config.get("Sockets", "keyinput"):
+            if not config.has_option("Sockets", "keyinput") or service.socketName != config.get("Sockets", "keyinput"):
                 self.logger.info("Terminating socket: " + service.socketName)
                 service.socket.send_json({"head":"stop"})
 
@@ -96,6 +99,8 @@ class Kernel(threading.Thread):
                 self.logger.info("ContextTerminated " + __file__ + " is shutting down")
                 self.running = False
                 break
+
+        print ("Stopping kernel.")
 
 
     def send(self, service, message):

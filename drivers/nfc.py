@@ -252,13 +252,11 @@ class NfcReader(object):
     def stopAllCurrentOperations(self):
 
         self.worker.running = False
-        print "Joining worker"
         try: 
             self.worker.join()
         except RuntimeError:
             pass
         self.clear()
-        print "Worker joined"
 
 
     def write(self, cmd):

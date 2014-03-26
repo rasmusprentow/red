@@ -1,4 +1,6 @@
-#windowrunner.py 
+""" 
+The layoutrunner can be used to run a layout and see it without running the kernel 
+"""
 
 
 
@@ -9,7 +11,8 @@ from red.services.display import Display
 from PySide           import QtGui
 import zmq , threading, sys
 from red.config import config
-
+config.add_section("GUI")
+config.set("GUI","cursor", 'true')
 
 app = QtGui.QApplication(sys.argv)
 socketName = "inproc://display"
@@ -24,6 +27,7 @@ class InThreasd(threading.Thread):
         self.socket = real_context.socket(zmq.PAIR)
         self.socket.bind(socketName)
         self.last = ""
+
 
     def run (self):
         print "Type name of layout (Enter refreshes)"

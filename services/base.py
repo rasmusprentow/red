@@ -36,6 +36,8 @@ class Service(object):
                     message = {'head' : 'error', 'data' : 'Command not found'}
                     self.send(message)
 
+        print (self.__class__.__name__ + " is now stopped.")
+
     def send(self, message):
         """ 
         Send message to the current activity.

@@ -5,6 +5,9 @@ import sys
 from red.config      import config
 from PySide           import QtGui
 from red.kernel      import Kernel
+import signal
+import sys
+
 
 
 class Red(object):
@@ -25,7 +28,7 @@ class Red(object):
 
 
 
-        kernel = Kernel()
+        self.kernel = Kernel()
         
         ##### This is QT load UI ######
         services = config.get('Services','Services').split(",")
@@ -37,13 +40,14 @@ class Red(object):
             logger.info('Zebra GUI initiated')
         
         ###############################
-        
-        
-        kernel.start()
-        
-        
+        self.kernel.start()
+        signal.signal(signal.SIGINT, self.signal_handler)
         
         ###### This fellow must be run in the end ######
         if "display" in services:
             sys.exit(app.exec_())
-        
+
+    def signal_handler(self, signal, frame):
+        print 'You pressed Ctrl+C!'
+        self.kernel.stop()
+    

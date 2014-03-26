@@ -41,6 +41,8 @@ class Lpc(Service, Thread):
         elif(message['head'] == "flush_serial"):
             self.nfcReader.clear()
             return True
+        elif message['head'] == "stop_operations":
+            self.reader.stopAllCurrentOperations()
         else:
             return False
             

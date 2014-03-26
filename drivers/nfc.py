@@ -249,6 +249,13 @@ class NfcReader(object):
         while self.serial.inWaiting() > 0:
             self.serial.read()
         self.serial.flush()
+ 
+    def stopAllCurrentOperations(self):
+
+        self.worker.running = False
+        print "Joining worker"
+        self.worker.join()
+        print "Worker joined"
 
 
     def write(self, cmd):

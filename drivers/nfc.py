@@ -126,26 +126,26 @@ class NfcWoker(threading.Thread):
 
     running = False
 
+    def setReader(self, reader):
+        self.reader = reader
 
 
-    def setNfcListener(self, listener):
-        self.listener = listener
 
     def run(self):
          self.running = True
          while self.running:
             cmd = Command(0x25,[0x26,0x00])  
-            self.write(cmd)
-            msg = self._receiveMessage()
+            self.reader.write(cmd)
+            msg = self.reader._receiveMessage()
             
             if msg.length == 6:          
                 self.running = False
-                self.listener(msg)
+                self.reader.listener(msg)
                 return
             time.sleep(0.2)
             
 
-class MockNfcWoker(threading.Thread):
+class MockNfcWoker(NfcWoker):
 
     running = False
 
@@ -156,7 +156,7 @@ class MockNfcWoker(threading.Thread):
         self.running = True
         print "sdadas"
         self.running = False
-        self.listener(MockMessage(raw_input()))
+        self.reader.listener(MockMessage(raw_input()))
             
 
 ###################################################################################
@@ -166,10 +166,13 @@ class NfcReader(object):
     The class will initiate connection once constructed.
     """
 
-    def __init__(self,port="/dev/ttyUSB0",baudrate=9600, nfcListener=None):
+    def __init__(self,nfcListener, port="/dev/ttyUSB0",baudrate=9600):
         self.port = port
         self.baudrate = baudrate
         self.stationId = 00;
+        if not callable(nfcListener):
+            raise Exception("The nfcListener is not callable")
+        
         self.listener = nfcListener
         self.reloadWorker()
 
@@ -179,14 +182,15 @@ class NfcReader(object):
 
     def reloadWorker(self):
         self.worker = NfcWoker()
-        self.worker.setNfcListener(self.listener)
-
+        self.worker.setReader(self)
+       
 
 
     def getTagData(self):
         """ 
         Puts the reader in read mode and 
-        returns a serial when there is one
+        Notifies the listener when a tag is available
+        The method is non blocking
         """
         if self.worker.running == True:
             return
@@ -194,6 +198,7 @@ class NfcReader(object):
         self.worker.start()
        
     def _receiveMessage(self):
+        """ Internal methodd that receives """
         index = 0
         msg = RespondMessage()
         msg.length = 0
@@ -266,4 +271,4 @@ class MockNfcReader(NfcReader):
 
     def reloadWorker(self):
         self.worker = MockNfcWoker()
-        self.worker.setNfcListener(self.listener)
+        self.worker.setReader(self)

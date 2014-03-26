@@ -279,3 +279,6 @@ class MockNfcReader(NfcReader):
     def reloadWorker(self):
         self.worker = MockNfcWoker()
         self.worker.setReader(self)
+
+    def write(self, cmd):
+        pass

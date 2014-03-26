@@ -154,7 +154,6 @@ class MockNfcWoker(NfcWoker):
 
     def run(self):
         self.running = True
-        print "sdadas"
         self.running = False
         self.reader.listener(MockMessage(raw_input()))
             

@@ -33,7 +33,6 @@ class MainWindow(QtGui.QMainWindow):
         func(param)
 
     def setLayout(self, layout):
-        
         self.view = QtDeclarative.QDeclarativeView()
         self.view.setSource(QtCore.QUrl.fromLocalFile( './layouts/'+ layout +'.qml' ))
         self.view.setResizeMode( QtDeclarative.QDeclarativeView.SizeRootObjectToView )

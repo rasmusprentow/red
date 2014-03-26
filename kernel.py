@@ -4,8 +4,7 @@
 import logging, logging.config
 import zmq
 import threading
-import types
-import re
+
 
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
@@ -14,7 +13,8 @@ logger = logging.getLogger("kernel")
 
 import importlib
 
-
+from sqlalchemy.orm import sessionmaker
+from models.model import engine
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config, get_config
 
@@ -34,6 +34,7 @@ class Kernel(threading.Thread):
         self._session = None
         self.activity = None
         self.running = True
+        self._session = None
 
     def receive(self, name, message):
         """ 
@@ -41,6 +42,9 @@ class Kernel(threading.Thread):
         The activity will get the message in its 'receive<service>Message' method
 
         """
+        if message["head"] == "stop":
+            self.stop()
+            return
         if message["head"] == "echo":
             self.logger.info("Received echo from " + name)             
         methodName = "receive" + name.capitalize() + "Message"
@@ -62,7 +66,7 @@ class Kernel(threading.Thread):
 
         for key in self.services:
             service = self.services[key]
-            if service.socketName != config.get("Sockets", "keyinput"):
+            if not config.has_option("Sockets", "keyinput") or service.socketName != config.get("Sockets", "keyinput"):
                 self.logger.info("Terminating socket: " + service.socketName)
                 service.socket.send_json({"head":"stop"})
 
@@ -96,6 +100,8 @@ class Kernel(threading.Thread):
                 self.running = False
                 break
 
+        print ("Stopping kernel.")
+
 
     def send(self, service, message):
         """ 
@@ -105,10 +111,21 @@ class Kernel(threading.Thread):
         self.services[service].socket.send_json(message)
 
 
+    @property
+    def session(self):
+        """ 
+        Session property used for sqlalchemy
+        """
+        if not hasattr(self, "_session") or self._session == None:
+            self._session = sessionmaker(bind=engine)()
+        return self._session
+
+    
+
     def switchActivity(self, activity, data=None):
         """ Switches activity to the specified activity. Data is sent to the activity """
         Activity = activity.capitalize()
-
+        self.logger.debug("Switching activity to " + activity)
         package = get_config(config, 'Activities', 'package', default='activities')
         moduleName = ''
         if len(package) > 0:

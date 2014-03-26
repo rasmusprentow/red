@@ -239,8 +239,8 @@ class NfcReader(object):
             while self.serial.outWaiting() != 0:
                 """ Ensure that the buzz gets transmitted """
                 time.sleep(0.01)
-        except AttributeError:
-            print "No no"
+        except AttributeError as e:
+            logger.error("AttributeError, attribute not found: " + str(e))
             time.sleep(0.4)
         
 
@@ -284,4 +284,7 @@ class MockNfcReader(NfcReader):
         self.worker.setReader(self)
 
     def write(self, cmd):
+        pass
+
+    def activateBuzzer(self): 
         pass

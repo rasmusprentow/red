@@ -74,7 +74,7 @@ class Kernel(threading.Thread):
         """Starting activity based on config"""
         startActivityName = config.get("Activities", "start")
         self.logger.info("Starting activity: " + startActivityName)
-        self.switchActivity(startActivityName)
+        self.switchActivity(startActivityName, clearLpc=False)
 
        
     def run(self):
@@ -122,7 +122,7 @@ class Kernel(threading.Thread):
 
     
 
-    def switchActivity(self, activity, data=None):
+    def switchActivity(self, activity, data=None, clearLpc=True):
         """ Switches activity to the specified activity. Data is sent to the activity """
         Activity = activity.capitalize()
         self.logger.debug("Switching activity to " + activity)
@@ -140,6 +140,10 @@ class Kernel(threading.Thread):
             return
      
         activityClass = getattr(module, Activity)
+        if clearLpc:
+            self.clearLpc() # ensure activities start in clean state
+        
+
         self.activity = activityClass(self)
         self.activity.onCreate(data) 
         
@@ -150,3 +154,10 @@ class Kernel(threading.Thread):
        
         while meta.socket.poll(2) != 0:
             meta.socket.recv_json()
+
+    def clearLpc(self):
+        """ Resets the lpc service if it exists """
+        if "lpc" in self.services:
+            if self.activity != None:
+                self.activity.send("lpc",{"head":"stop_operations"})
+            self.emptyQueue("lpc")

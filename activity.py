@@ -19,7 +19,7 @@ class Activity(object):
     def __init__(self, kernel):
         super(Activity, self).__init__()
         self.kernel = kernel
-        self.logger = logging.getLogger('activity')
+        self.logger = logging.getLogger('activity.' + str(self.__class__.__name__))
         self._session = None
     
 
@@ -79,4 +79,8 @@ class Activity(object):
         Param is parameter for that function. 
         """
         self.send("display", {"head":"call_func", "data":{"func":function, "param":param}})
-        
+    
+    
+    def clearLpc(self):
+        """ Resets the lpc service if it exists """
+        self.kernel.clearLpc()

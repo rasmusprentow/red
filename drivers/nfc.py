@@ -253,7 +253,11 @@ class NfcReader(object):
 
         self.worker.running = False
         print "Joining worker"
-        self.worker.join()
+        try: 
+            self.worker.join()
+        except RuntimeError:
+            pass
+        self.clear()
         print "Worker joined"
 
 

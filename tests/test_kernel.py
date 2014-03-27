@@ -1,5 +1,8 @@
 #test_kernel.py
 
+import sys
+
+sys.path.append('.')
 import unittest
 from red.kernel import Kernel
 from red.config import config

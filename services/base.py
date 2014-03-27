@@ -33,7 +33,7 @@ class Service(object):
                 self.send({'head':'echo'})
             else:
                 if not self.processMessage(message):
-                    message = {'head' : 'error', 'data' : 'Command not found'}
+                    message = {'head' : 'error', 'data' : self.__class__.__name__ + ': Command not found: ' + message['head']}
                     self.send(message)
 
         print (self.__class__.__name__ + " is now stopped.")

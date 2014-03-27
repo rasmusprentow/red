@@ -46,13 +46,14 @@ class Kernel(threading.Thread):
             self.stop()
             return
         if message["head"] == "echo":
-            self.logger.info("Received echo from " + name)             
+            self.logger.info("Received echo from " + name)  
+            return           
         methodName = "receive" + name.capitalize() + "Message"
        
         if hasattr(self.activity, methodName):
             method = getattr(self.activity, methodName)
         else:        
-            self.logger.critical("The method 'receive" + name.capitalize() + "Message' is not implemented in " + str(self.activity))
+            self.logger.warning("The method 'receive" + name.capitalize() + "Message' is not implemented in " + str(self.activity))
             return 
 
         if callable(method):

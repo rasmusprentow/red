@@ -52,9 +52,10 @@ class ServiceFactory (object):
         serviceList = dict()
       
         for service in servicesToCreate:
-            logger.info("Creating service: " + service)
+            
             if service == '' or service == None: 
                 continue
+            logger.info("Creating service: " + service)
             serviceList[service] = self.createService(service)
 
         return serviceList
@@ -125,7 +126,7 @@ class ServiceFactory (object):
             Physically turn on a device. 
             """
            
-            meta.socket.send_json({"head":"echo"})
+            meta.socket.send_json({"head":"system_message", "data":"echo"})
 
 
         return meta

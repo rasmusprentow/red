@@ -34,7 +34,7 @@ class Service(object):
                 elif message['data'] == "echo":
                     self.send({'head' : 'system_message', 'data' : 'echo'})
                 elif message['data'] == "restart":
-                    self.restart()
+                    self.onRestart()
             else:
                 if not self.processMessage(message):
                     message = {'head' : 'error', 'data' : self.__class__.__name__ + ': Command not found: ' + message['head']}

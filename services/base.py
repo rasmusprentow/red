@@ -27,19 +27,27 @@ class Service(object):
             if 'head' not in message:
                 message = {'head' : 'error', 'data' : 'Malformed data: Head missing'}
                 self.send(message)
-            elif message['head'] == "stop":
-                break;
-            elif message['head'] == "echo":
-                self.send({'head':'echo'})
+            elif message['head'] == "system_message":
+
+                if message['head'] == "stop":
+                    break;
+                elif message['data'] == "echo":
+                    self.send({'head' : 'system_message', 'data' : 'echo'})
+                elif message['data'] == "restart":
+                    self.restart()
             else:
                 if not self.processMessage(message):
                     message = {'head' : 'error', 'data' : self.__class__.__name__ + ': Command not found: ' + message['head']}
                     self.send(message)
 
-        print (self.__class__.__name__ + " is now stopped.")
+        self.logger.info(self.__class__.__name__ + " is now stopped.")
 
     def send(self, message):
         """ 
         Send message to the current activity.
         """
         self.socket.send_json(message)
+
+    def onRestart(self):
+        """ OVerride this method to implement custom restart functionality """
+        pass

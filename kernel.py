@@ -4,7 +4,7 @@
 import logging, logging.config
 import zmq
 import threading
-
+import traceback
 
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config
@@ -31,7 +31,6 @@ class Kernel(threading.Thread):
         self.poller = zmq.Poller()
         
         self.services = ServiceFactory(self).createActiveServicesFromConfig()
-        self._session = None
         self.activity = None
         self.running = True
         self._session = None
@@ -42,12 +41,15 @@ class Kernel(threading.Thread):
         The activity will get the message in its 'receive<service>Message' method
 
         """
-        if message["head"] == "stop":
-            self.stop()
-            return
-        if message["head"] == "echo":
-            self.logger.info("Received echo from " + name)  
-            return           
+        if message["head"] == "system_message":
+            if "data" not in message:
+                self.logger.critical("Erroneous system_message. Msg: " + str(message))
+            if message["data"] == "stop":
+                self.stop() 
+            if message["data"] == "echo":
+                self.logger.info("Received echo from " + name)  
+            return         
+        
         methodName = "receive" + name.capitalize() + "Message"
        
         if hasattr(self.activity, methodName):
@@ -57,9 +59,25 @@ class Kernel(threading.Thread):
             return 
 
         if callable(method):
-            method(message)
+            try: 
+                method(message)
+            except Exception: 
+                ## We restart everything 
+                self.logger.critical("An unknown exception occured. Exception: " + traceback.format_exc())
+                self.restartAllServices()
+                self.startActivities()
+
         else: 
             self.logger.critical("The so-called method named: '" + str(method) + "' is not callable")
+
+    def restartAllServices(self):
+        """ Restarts all services """
+        for key in self.services:
+            service = self.services[key]
+            if not service.isMasterService: 
+                # We do not inform our master of a restart
+                self.emptyQueue(service.serviceName)
+                service.socket.send_json({"head" : "system_message", "data" : "restart"})
 
     def stop(self):
         """ Stops all running services and itself """
@@ -69,7 +87,7 @@ class Kernel(threading.Thread):
             service = self.services[key]
             if not config.has_option("Sockets", "keyinput") or service.socketName != config.get("Sockets", "keyinput"):
                 self.logger.info("Terminating socket: " + service.socketName)
-                service.socket.send_json({"head":"stop"})
+                service.socket.send_json({"head" : "system_message" , "data" : "stop"})
 
     def startActivities(self):
         """Starting activity based on config"""
@@ -101,7 +119,7 @@ class Kernel(threading.Thread):
                 self.running = False
                 break
 
-        print ("Stopping kernel.")
+        self.logger.info("Stopping kernel.")
 
 
     def send(self, service, message):

@@ -84,3 +84,17 @@ class Activity(object):
     def clearLpc(self):
         """ Resets the lpc service if it exists """
         self.kernel.clearLpc()
+
+
+    def setErrorLayout(self, message=None, sleep=0):
+        """ 
+        Changes layout to the error layout.
+        Message is the message to be displayed and sleep is the amount of time which the system sould sleep
+        """
+        self.setLayout("error")
+        if message != None:
+            errorMsg = message
+        else:
+            errorMsg = "An Error Occurred"
+        self.invokeLayoutFunction("updateErrorText", errorMsg )
+        time.sleep(sleep)

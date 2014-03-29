@@ -1,6 +1,6 @@
 #test_kernel.py
 import unittest
-from red.kernel import Kernel
+from kernel import Kernel
 from red.config import config
 from red.activity import Activity
 import math, os

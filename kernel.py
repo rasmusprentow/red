@@ -1,5 +1,5 @@
 """ The kernel package contains the Kernel 
- Pylint: pylint2  red/kernel.py --disable=trailing-whitespace --disable=line-too-long --disable=no-member --disable=invalid-name
+ Pylint: pylint2  kernel.py --disable=trailing-whitespace --disable=line-too-long --disable=no-member --disable=invalid-name
 """
 import logging, logging.config
 import zmq
@@ -13,8 +13,8 @@ logger = logging.getLogger("kernel")
 
 import importlib
 
-from sqlalchemy.orm import sessionmaker
-from models.model import engine
+
+
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config, get_config
 
@@ -25,6 +25,7 @@ class Kernel(threading.Thread):
         super(Kernel, self).__init__()
        
 
+        
         self.logger = logging.getLogger("kernel")
 
         self.context = zmq.Context()
@@ -34,6 +35,7 @@ class Kernel(threading.Thread):
         self.activity = None
         self.running = True
         self._session = None
+      
 
     def receive(self, name, message):
         """ 
@@ -136,6 +138,8 @@ class Kernel(threading.Thread):
         Session property used for sqlalchemy
         """
         if not hasattr(self, "_session") or self._session == None:
+            from models.model import engine
+            from sqlalchemy.orm import sessionmaker
             self._session = sessionmaker(bind=engine)()
         return self._session
 

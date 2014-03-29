@@ -7,7 +7,7 @@ from red.config      import config
 logging.config.fileConfig('config/logging.conf')
 
 from PySide           import QtGui
-from kernel      import Kernel
+from red.kernel      import Kernel
 import signal
 import sys
 

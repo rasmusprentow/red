@@ -41,15 +41,23 @@ class MockSerivce():
 class MockKernel(Kernel):
     def __init__(self):
         super(MockKernel, self).__init__()
+        self.act = None
         pass
 
+
+
+
+    def switchActivity(self, activity, data=None):
+        self.act = activity
 
 class BaseActivityTest(unittest.TestCase):
 
     def setup(self):
         """ Call super(TESTNAME, self).setup() """
         self.kernel = MockKernel()
+
         self.kernel.services = {}
+
 
     def getActivity(self, activity):
         """ Takes an activity as instance and instanciates it correctly """
@@ -65,3 +73,5 @@ class BaseActivityTest(unittest.TestCase):
         received = self.kernel.services[service].getReceived()
         self.assertEqual(arg, received)
 
+    def assertSwitchActivity(self, activity):
+        self.assertEqual(activity, self.kernel.act)

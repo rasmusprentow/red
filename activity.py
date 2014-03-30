@@ -21,6 +21,7 @@ class Activity(object):
         self.kernel = kernel
         self.logger = logging.getLogger('activity.' + str(self.__class__.__name__))
         self._session = None
+        self.defaultSleepTime = 5
     
 
     def onCreate(self, data=None):
@@ -98,3 +99,7 @@ class Activity(object):
             errorMsg = "An Error Occurred"
         self.invokeLayoutFunction("updateErrorText", errorMsg )
         time.sleep(sleep)
+
+
+    def setLoadingScreen(self):
+        self.setLayout("loading")

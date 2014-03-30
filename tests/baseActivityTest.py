@@ -23,16 +23,17 @@ from red.kernel import Kernel
 class MockSocket():
 
     def __init__(self):
-        self.received = None
-
+        self.received = list()
+ 
     def send_json(self,value,_2=None,_3=None):
-        self.received = value
+        self.received.append(value)
 
 class MockSerivce():
 
     def __init__(self):
         
         self.socket = MockSocket()
+
 
     def getReceived(self):
         return self.socket.received
@@ -61,7 +62,9 @@ class BaseActivityTest(unittest.TestCase):
 
     def getActivity(self, activity):
         """ Takes an activity as instance and instanciates it correctly """
-        return activity(self.kernel)
+        a = activity(self.kernel)
+        a.defaultSleepTime = 0
+        return a
 
     def setServices(self, services):
         "Call this during the test setUp to add required Services"
@@ -70,8 +73,14 @@ class BaseActivityTest(unittest.TestCase):
 
     def assertReceived(self, service, arg):
         """ Asserts that the required service received the argument """
-        received = self.kernel.services[service].getReceived()
-        self.assertEqual(arg, received)
+        foundAnything = False
+        for received in self.kernel.services[service].getReceived():
+            foundAnything = foundAnything or arg == received
+        self.assertEqual(True, foundAnything)
 
     def assertSwitchActivity(self, activity):
         self.assertEqual(activity, self.kernel.act)
+
+    def assertSetLayout(self, layout):
+
+        self.assertReceived("display", {"head":"set_layout", "data":layout})

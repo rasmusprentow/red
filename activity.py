@@ -101,5 +101,6 @@ class Activity(object):
         time.sleep(sleep)
 
 
-    def setLoadingScreen(self):
+    def setLoadingScreen(self, message=""):
         self.setLayout("loading")
+        self.invokeLayoutFunction("updateInfoText", message)

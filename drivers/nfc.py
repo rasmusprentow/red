@@ -154,7 +154,6 @@ class MockNfcWoker(NfcWoker):
 
     def run(self):
         self.running = True
-        print "sdadas"
         self.running = False
         self.reader.listener(MockMessage(raw_input()))
             
@@ -240,8 +239,8 @@ class NfcReader(object):
             while self.serial.outWaiting() != 0:
                 """ Ensure that the buzz gets transmitted """
                 time.sleep(0.01)
-        except AttributeError:
-            print "No no"
+        except AttributeError as e:
+            logger.error("AttributeError, attribute not found: " + str(e))
             time.sleep(0.4)
         
 
@@ -253,9 +252,11 @@ class NfcReader(object):
     def stopAllCurrentOperations(self):
 
         self.worker.running = False
-        print "Joining worker"
-        self.worker.join()
-        print "Worker joined"
+        try: 
+            self.worker.join()
+        except RuntimeError:
+            pass
+        self.clear()
 
 
     def write(self, cmd):
@@ -279,3 +280,9 @@ class MockNfcReader(NfcReader):
     def reloadWorker(self):
         self.worker = MockNfcWoker()
         self.worker.setReader(self)
+
+    def write(self, cmd):
+        pass
+
+    def activateBuzzer(self): 
+        pass

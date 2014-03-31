@@ -5,10 +5,9 @@ import zmq
 
 
 from red.config import config
-from services import *
-from red.services import *
 
-import logging, configparser
+
+import logging, configparser, importlib
 
 logger = logging.getLogger("kernel.ServiceFactory")
 
@@ -53,9 +52,10 @@ class ServiceFactory (object):
         serviceList = dict()
       
         for service in servicesToCreate:
-            logger.info("Creating service: " + service)
+            
             if service == '' or service == None: 
                 continue
+            logger.info("Creating service: " + service)
             serviceList[service] = self.createService(service)
 
         return serviceList
@@ -71,7 +71,8 @@ class ServiceFactory (object):
         meta.serviceName = serviceName
 
         meta.socket = self.module.context.socket(zmq.PAIR)
-       
+        
+        ServiceName = serviceName.capitalize()
         
         """ Determine if this is a slave service """
         meta.isSlaveService = meta.serviceName in self.slaves
@@ -93,9 +94,26 @@ class ServiceFactory (object):
         if not (meta.isSlaveService or meta.isMasterService):
             """ Slaves and masters should never be started by us """
             logger.info("Starting service: " + str(serviceName))
-            serviceClass = eval( serviceName + "." +serviceName.capitalize())
-            meta.service = serviceClass(name=meta.socketName, context=self.module.context)
-            meta.service.start();
+
+
+      
+            module = None
+            try: 
+                moduleName = "red.services." + serviceName
+                logger.debug("Importing " + moduleName)
+                module = importlib.import_module(moduleName) 
+            except ImportError as e: 
+                try:
+                    moduleName = "red." + moduleName
+                    logger.debug("Importing " + moduleName)
+                    module = importlib.import_module(moduleName) 
+                except ImportError as e: 
+                    logger.critical("The service '%s' did not exist as an service. Exception: %s" % (serviceName, str(e)))
+            
+            if module != None:
+                serviceClass = getattr(module, ServiceName)
+                meta.service = serviceClass(name=meta.socketName, context=self.module.context)
+                meta.service.start();
 
 
         self.module.poller.register(meta.socket, zmq.POLLIN)
@@ -108,7 +126,7 @@ class ServiceFactory (object):
             Physically turn on a device. 
             """
            
-            meta.socket.send_json({"head":"echo"})
+            meta.socket.send_json({"head":"system_message", "data":"echo"})
 
 
         return meta

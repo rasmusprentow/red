@@ -19,8 +19,9 @@ class Activity(object):
     def __init__(self, kernel):
         super(Activity, self).__init__()
         self.kernel = kernel
-        self.logger = logging.getLogger('activity')
+        self.logger = logging.getLogger('activity.' + str(self.__class__.__name__))
         self._session = None
+        self.defaultSleepTime = 5
     
 
     def onCreate(self, data=None):
@@ -79,4 +80,27 @@ class Activity(object):
         Param is parameter for that function. 
         """
         self.send("display", {"head":"call_func", "data":{"func":function, "param":param}})
-        
+    
+    
+    def clearLpc(self):
+        """ Resets the lpc service if it exists """
+        self.kernel.clearLpc()
+
+
+    def setErrorLayout(self, message=None, sleep=0):
+        """ 
+        Changes layout to the error layout.
+        Message is the message to be displayed and sleep is the amount of time which the system sould sleep
+        """
+        self.setLayout("error")
+        if message != None:
+            errorMsg = message
+        else:
+            errorMsg = "An Error Occurred"
+        self.invokeLayoutFunction("updateErrorText", errorMsg )
+        time.sleep(sleep)
+
+
+    def setLoadingScreen(self, message=""):
+        self.setLayout("loading")
+        self.invokeLayoutFunction("updateInfoText", message)

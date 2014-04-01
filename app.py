@@ -3,12 +3,13 @@ import time
 import logging, logging.config
 import sys
 from red.config      import config
+
+logging.config.fileConfig('config/logging.conf')
+
 from PySide           import QtGui
 from red.kernel      import Kernel
 import signal
 import sys
-
-
 
 class Red(object):
 
@@ -17,8 +18,8 @@ class Red(object):
 
     def start(self):
         ### Initialize Logger
-        logging.config.fileConfig('config/logging.conf')
-        logger = logging.getLogger(__file__)
+        
+        logger = logging.getLogger("red")
         logger.info("Zebra 14 is booting")
         
         app = QtGui.QApplication(sys.argv)

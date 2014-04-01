@@ -9,7 +9,7 @@ from threading import Thread
 API:
 
     Receives:
-        get_pocket
+        get_tag
         
     
     Transmits:

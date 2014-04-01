@@ -1,5 +1,4 @@
 #test_kernel.py
-
 import unittest
 from red.kernel import Kernel
 from red.config import config
@@ -60,7 +59,7 @@ class Test_KernelTest(unittest.TestCase):
         """ This tests that the message gets delivered to the activity"""
         self.kernel.activity = MockActivity(self.kernel)
         self.kernel.receive("test", {"head" : "echo"})
-        self.assertTrue(True, self.kernel.activity.received)
+        self.assertTrue(self.kernel.activity.received)
 
     def testSwitchActivity(self):
         """ Tests switch activity """

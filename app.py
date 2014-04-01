@@ -4,7 +4,7 @@ import logging, logging.config
 import sys
 from red.config      import config
 
-logging.config.fileConfig('config/logging.conf')
+#logging.config.fileConfig('config/logging.conf')
 
 from PySide           import QtGui
 from red.kernel      import Kernel

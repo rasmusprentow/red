@@ -42,14 +42,18 @@ class Activity(object):
         if sleep > 0:
             time.sleep(sleep)
 
-    def send(self, service, message):
+    def send(self, service, message=None, head=None, data=None):
         """ 
         Send message to any service. 
         Message must be a dictionary.
+        If the head parameter is set message can be ignored.
         """
-        self.kernel.send(service, message)
+        if head != None:
+            self.kernel.send(service, {"head" : head, "data" : data})
+        else:
+            self.kernel.send(service, message)
 
-    
+  
     def switchActivity(self, activity, data=None):
         """ 
         Switch to the specified activity
@@ -104,3 +108,5 @@ class Activity(object):
     def setLoadingScreen(self, message=""):
         self.setLayout("loading")
         self.invokeLayoutFunction("updateInfoText", message)
+
+

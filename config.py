@@ -2,13 +2,20 @@
 
 import configparser
 import sys, getopt, logging
+from red.utils.run_once import run_once
 
 global config
+global logger
 
-logger = logging.getLogger('kernel')
+@run_once
+def init ():
+    global config
+    global logger
+    logger = logging.getLogger('kernel')
 
-### Load config
-config = configparser.ConfigParser()
+    ### Load config
+    config = configparser.ConfigParser()
+    config.read('config/init.conf')
 
 
 def get_config(config, section, option, ctype=str, default=None): 
@@ -22,3 +29,5 @@ def get_config(config, section, option, ctype=str, default=None):
         return ctype(ret) 
     except:
         return ctype(default)
+
+init()

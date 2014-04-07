@@ -12,6 +12,4 @@ class Network (Service, Thread):
     
 
     def processMessage(self,message):
-        assert message is dict
-        self.sock.send_json({'msg':'Echoing: ' + message['msg']}) 
-        return True
+        pass

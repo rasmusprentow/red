@@ -5,13 +5,11 @@ from red.config import config, get_config
 logger = logging.getLogger(__file__)
 
 
-
 """ Start of Text """
 STX = 0xAA
 
 """ End of Text """
 ETX = 0xBB
-
 class LpcException(Exception):
     """docstring for LpcException"""
    
@@ -207,11 +205,13 @@ class NfcReader(object):
             byte = (self.serial.read())
             byte = ord(byte)
 
+            print hex(byte)
            
             
             if index == 0:
                 if byte != 0xaa:
-                    raise LpcException("The first byte was not 0xAA but: " + hex(byte))
+                    print("The first byte was not 0xAA but: " + hex(byte))
+                    continue;
             elif index == 1:
                 if byte != self.stationId:
                     logger.error("The station is was not zero it was: " + hex(byte))

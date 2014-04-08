@@ -79,8 +79,12 @@ class BaseActivityTest(unittest.TestCase):
             foundAnything = foundAnything or arg == received
         self.assertEqual(True, foundAnything)
 
-    def assertSwitchActivity(self, activity, data = None):
-        self.assertEqual(activity, self.kernel.act)
+    def assertSwitchActivity(self, activity=None, data=None, anyActivity=False):
+        if anyActivity:
+            self.assertNotEqual(None, self.kernel.act)
+        else:
+            self.assertEqual(activity, self.kernel.act)
+        
         if data != None:
             self.assertEqual(data, self.kernel.data)
 

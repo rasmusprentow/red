@@ -50,6 +50,7 @@ class MockKernel(Kernel):
 
     def switchActivity(self, activity, data=None):
         self.act = activity
+        self.data = data
 
 class BaseActivityTest(unittest.TestCase):
 
@@ -78,8 +79,10 @@ class BaseActivityTest(unittest.TestCase):
             foundAnything = foundAnything or arg == received
         self.assertEqual(True, foundAnything)
 
-    def assertSwitchActivity(self, activity):
+    def assertSwitchActivity(self, activity, data = None):
         self.assertEqual(activity, self.kernel.act)
+        if data != None:
+            self.assertEqual(data, self.kernel.data)
 
     def assertSetLayout(self, layout):
 

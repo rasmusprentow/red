@@ -6,6 +6,7 @@ The activity module it the mother of all other activities
 
 
 import logging, time
+from threading import Timer
 
 
 class Activity(object):
@@ -22,6 +23,7 @@ class Activity(object):
         self.logger = logging.getLogger('activity.' + str(self.__class__.__name__))
         self._session = None
         self.defaultSleepTime = 5
+        self.timer = None
     
 
     def onCreate(self, data=None):
@@ -32,6 +34,7 @@ class Activity(object):
         """
         pass
 
+
     def setLayout(self, layout, sleep=0):
         """
         Change the layout of the screen
@@ -41,6 +44,7 @@ class Activity(object):
         self.kernel.send("display", {"head":"set_layout", "data":layout})
         if sleep > 0:
             time.sleep(sleep)
+
 
     def send(self, service, message=None, head=None, data=None):
         """ 
@@ -59,6 +63,8 @@ class Activity(object):
         Switch to the specified activity
         The data param gets sent to the new activity's onCreate method.
         """
+        if self.timer != None:
+            self.timer.cancel()
         self.kernel.switchActivity(activity, data)
 
 
@@ -76,6 +82,7 @@ class Activity(object):
         Session property used for sqlalchemy
         """
         return self.kernel.session
+
 
     def invokeLayoutFunction(self, function, param):
         """
@@ -106,7 +113,14 @@ class Activity(object):
 
 
     def setLoadingScreen(self, message=""):
+        """ Changed layout to a layout named loading and sets the specified message"""
         self.setLayout("loading")
         self.invokeLayoutFunction("updateInfoText", message)
 
 
+    def setTimer(self, activity, time=None):
+        """ Sets a timer and switches to the specified activity after 'time'. """
+        if time == None:
+            time = self.defaultSleepTime
+        self.timer = Timer(time, self.switchActivity, [activity]) 
+        self.timer.start()

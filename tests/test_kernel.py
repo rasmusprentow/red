@@ -30,6 +30,10 @@ class Test_KernelTest(unittest.TestCase):
         
         try:
             config.add_section('Shop')
+        except:
+            pass
+
+        try: 
             config.add_section('Services')
             config.add_section('Activities')
         except:

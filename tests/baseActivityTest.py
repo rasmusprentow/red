@@ -41,7 +41,7 @@ class MockSerivce():
 
 class MockKernel(Kernel):
     def __init__(self):
-        super(MockKernel, self).__init__()
+        #super(MockKernel, self).__init__()
         self.act = None
         pass
 
@@ -50,6 +50,7 @@ class MockKernel(Kernel):
 
     def switchActivity(self, activity, data=None):
         self.act = activity
+        self.data = data
 
 class BaseActivityTest(unittest.TestCase):
 
@@ -61,8 +62,13 @@ class BaseActivityTest(unittest.TestCase):
 
 
     def getActivity(self, activity):
-        """ Takes an activity as instance and instanciates it correctly """
-        a = activity(self.kernel)
+        """ Takes an activity as instance and instanciates it correctly. 
+        setTimer gets overridden and does not work. """
+        class newActivity(activity):
+            def setTimer(cls, layout, time=0):
+                pass
+
+        a = newActivity(self.kernel)
         a.defaultSleepTime = 0
         return a
 
@@ -75,11 +81,18 @@ class BaseActivityTest(unittest.TestCase):
         """ Asserts that the required service received the argument """
         foundAnything = False
         for received in self.kernel.services[service].getReceived():
+            print received
             foundAnything = foundAnything or arg == received
-        self.assertEqual(True, foundAnything)
+        self.assertEqual(True, foundAnything, "Tryed to find: " + str(arg) + " found:")
 
-    def assertSwitchActivity(self, activity):
-        self.assertEqual(activity, self.kernel.act)
+    def assertSwitchActivity(self, activity=None, data=None, anyActivity=False):
+        if anyActivity:
+            self.assertNotEqual(None, self.kernel.act)
+        else:
+            self.assertEqual(activity, self.kernel.act)
+        
+        if data != None:
+            self.assertEqual(data, self.kernel.data)
 
     def assertSetLayout(self, layout):
 

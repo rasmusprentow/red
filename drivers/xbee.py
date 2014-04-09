@@ -10,9 +10,6 @@ logger = logging.getLogger(__file__)
 
 class XBee (object):
 
-    pass
-
-
     def send(class):
         pass
 

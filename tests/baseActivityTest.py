@@ -62,8 +62,13 @@ class BaseActivityTest(unittest.TestCase):
 
 
     def getActivity(self, activity):
-        """ Takes an activity as instance and instanciates it correctly """
-        a = activity(self.kernel)
+        """ Takes an activity as instance and instanciates it correctly. 
+        setTimer gets overridden and does not work. """
+        class newActivity(activity):
+            def setTimer(cls, layout, time=0):
+                pass
+
+        a = newActivity(self.kernel)
         a.defaultSleepTime = 0
         return a
 

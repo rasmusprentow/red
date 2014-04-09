@@ -41,7 +41,7 @@ class MockSerivce():
 
 class MockKernel(Kernel):
     def __init__(self):
-        super(MockKernel, self).__init__()
+        #super(MockKernel, self).__init__()
         self.act = None
         pass
 
@@ -81,8 +81,9 @@ class BaseActivityTest(unittest.TestCase):
         """ Asserts that the required service received the argument """
         foundAnything = False
         for received in self.kernel.services[service].getReceived():
+            print received
             foundAnything = foundAnything or arg == received
-        self.assertEqual(True, foundAnything)
+        self.assertEqual(True, foundAnything, "Tryed to find: " + str(arg) + " found:")
 
     def assertSwitchActivity(self, activity=None, data=None, anyActivity=False):
         if anyActivity:

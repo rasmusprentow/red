@@ -106,6 +106,12 @@ class RespondMessage(object):
             valid = valid ^ value
         return valid == self.bcc
 
+    def getRaw(self, sep=""):
+        data = hex(self.stationId) + sep + hex(self.status) + sep + hex(self.length)
+        data += sep + "".join(hex(c) + sep for c in self.data)
+        data += sep + hex(self.bbc) 
+        return data
+
 
 ####################################################################################
 
@@ -135,7 +141,7 @@ class NfcWoker(threading.Thread):
             cmd = Command(0x25,[0x26,0x00])  
             self.reader.write(cmd)
             msg = self.reader._receiveMessage()
-            
+            print( msg.getRaw(' '))
             if msg.length == 6:          
                 self.running = False
                 self.reader.listener(msg)
@@ -205,7 +211,7 @@ class NfcReader(object):
             byte = (self.serial.read())
             byte = ord(byte)
 
-            print hex(byte)
+           
            
             
             if index == 0:

@@ -5,13 +5,11 @@ from red.config import config, get_config
 logger = logging.getLogger(__file__)
 
 
-
 """ Start of Text """
 STX = 0xAA
 
 """ End of Text """
 ETX = 0xBB
-
 class LpcException(Exception):
     """docstring for LpcException"""
    
@@ -108,6 +106,12 @@ class RespondMessage(object):
             valid = valid ^ value
         return valid == self.bcc
 
+    def getRaw(self, sep=""):
+        data = hex(self.stationId) + sep + hex(self.status) + sep + hex(self.length)
+        data += sep + "".join(hex(c) + sep for c in self.data)
+        data += sep + hex(self.bbc) 
+        return data
+
 
 ####################################################################################
 
@@ -137,7 +141,7 @@ class NfcWoker(threading.Thread):
             cmd = Command(0x25,[0x26,0x00])  
             self.reader.write(cmd)
             msg = self.reader._receiveMessage()
-            
+            print( msg.getRaw(' '))
             if msg.length == 6:          
                 self.running = False
                 self.reader.listener(msg)
@@ -208,10 +212,12 @@ class NfcReader(object):
             byte = ord(byte)
 
            
+           
             
             if index == 0:
                 if byte != 0xaa:
-                    raise LpcException("The first byte was not 0xAA but: " + hex(byte))
+                    print("The first byte was not 0xAA but: " + hex(byte))
+                    continue;
             elif index == 1:
                 if byte != self.stationId:
                     logger.error("The station is was not zero it was: " + hex(byte))

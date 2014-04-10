@@ -5,19 +5,6 @@ import zmq
 import red.drivers.nfc as nfc
 from red.config import config, get_config
 from threading import Thread
-"""
-API:
-
-    Receives:
-        get_tag
-        
-    
-    Transmits:
-        pocket
-            data = <serial>
-
-"""
-
 
 class Lpc(Service, Thread):
 
@@ -56,8 +43,4 @@ class Lpc(Service, Thread):
         message = {'head' : 'tag', 'data' : serial}
         self.send(message)
         self.nfcReader.clear()
-
-
-        
-
-        
+       

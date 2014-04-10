@@ -32,14 +32,14 @@ class Red(object):
 
 
         self.kernel = Kernel()
-        
+        self.window = None
         ##### This is QT load UI ######
         services = config.get('Services','Services').split(",")
         if "display" in services:
             logger.info("Zebra GUI is initiating")
             from red.mainwindow import MainWindow
-            window = MainWindow.instance()
-            window.show()
+            self.window = MainWindow.instance()
+            self.window.show()
             logger.info('Zebra GUI initiated')
         
         ###############################
@@ -51,6 +51,7 @@ class Red(object):
             sys.exit(app.exec_())
 
     def signal_handler(self, signal, frame):
-        print 'You pressed Ctrl+C!'
         self.kernel.stop()
+        if self.window != None:
+            self.window.close()
     

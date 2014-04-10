@@ -29,7 +29,7 @@ class Service(object):
                 self.send(message)
             elif message['head'] == "system_message":
 
-                if message['head'] == "stop":
+                if message['data'] == "stop":
                     break;
                 elif message['data'] == "echo":
                     self.send({'head' : 'system_message', 'data' : 'echo'})

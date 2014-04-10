@@ -2,13 +2,12 @@
 import time
 import logging, logging.config
 import sys
-from red.config      import config, init
+from red.config      import config, initConfig
 #logging.config.fileConfig('config/logging.conf')
 from PySide           import QtGui
 from red.kernel      import Kernel
 import signal
 import sys
-
 
 class Red(object):
 
@@ -19,7 +18,7 @@ class Red(object):
     def start(self):
         global config
         ### Initialize Logger
-        init(self.configFile,logging.getLogger("config"))
+        initConfig(self.configFile,logging.getLogger("config"))
         
         logger = logging.getLogger("red")
         logger.info("Zebra 14 is booting")

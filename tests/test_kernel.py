@@ -1,7 +1,7 @@
 #test_kernel.py
 import unittest
 from red.kernel import Kernel
-from red.config import config
+from red.config import config, initConfig
 from red.activity import Activity
 import math, os
 
@@ -23,7 +23,10 @@ class Test_kernel(Activity):
 
 
 class Test_KernelTest(unittest.TestCase):
- 
+    @classmethod
+    def setUpClass(self):
+        initConfig("test_meta.conf")
+
     def setUp(self):
         """Call before every test case."""
        

@@ -16,13 +16,15 @@ def init_once():
     config = configparser.ConfigParser()
     pass
 
-def init (metaConfigFile, logger):
+def initConfig (metaConfigFile, logger=None, recursion=5):
     '''
     Initialize configs based on metaConfigFile and logging to logger
     '''
     ### Load config
     global processedConfigs
     processedConfigs = []
+    if logger == None:
+        logger = logging.getLogger("dummy")
     if not os.path.isfile(metaConfigFile):
         print ("Meta-config file: " + metaConfigFile + " not found")
         print ("Here is what you might need:")
@@ -30,7 +32,7 @@ def init (metaConfigFile, logger):
 mandatory=config/logging.conf\n\
 read=fileConfig\n\
 [config]\n\
-mandatory=config/init.conf' > meta.conf")
+mandatory=config/init.conf' > " + metaConfigFile)
         exit();
     metaConf = configparser.ConfigParser()
     metaConf.read(metaConfigFile)
@@ -48,7 +50,7 @@ mandatory=config/init.conf' > meta.conf")
             for configFile in metaConf.get(section, "mandatory").split(','):
                 if os.path.isfile(configFile):
                     logger.info("Reading mandatory config file: '" + configFile + "' for " + section)
-                    readConfigFile(conf,configFile,read,logger)
+                    readConfigFile(conf,configFile,read,logger,recursion)
                 else:
                     logger.critical("Mandatory config file missing: '" + configFile + "' for " + section)
                     raise Exception("Mandatory config file missing: '" + configFile + "' for " + section)
@@ -56,7 +58,7 @@ mandatory=config/init.conf' > meta.conf")
                 for configFile in metaConf.get(section, "optional").split(','):
                     if os.path.isfile(configFile):
                         logger.info("Reading optional config file: '" + configFile + "' for " + section)
-                        readConfigFile(conf,configFile,read,logger)
+                        readConfigFile(conf,configFile,read,logger,recursion)
                     else:
                         logger.warning("Optional config file missing: '" + configFile + "' for " + section)
         else:
@@ -76,20 +78,20 @@ def readConfigFile(config, f, readMethod, logger, recurse=5):
             for subConfigFile in config.get("Configs","mandatory").split(','):
                 if os.path.isfile(subConfigFile):
                     if subConfigFile not in processedConfigs:
-                        logger.info("Reading mandatory config file: " + subConfigFile)
+                        logger.info("Reading mandatory config file: '" + subConfigFile + "'")
                         readConfigFile(config,subConfigFile,readMethod,logger,recurse-1)
                 else:
-                    logger.critical("Mandatory config file missing: " + subConfigFile)
-                    raise Exception("Mandatory config file missing: " + subConfigFile)
+                    logger.critical("Mandatory config file missing: '" + subConfigFile + "'")
+                    raise Exception("Mandatory config file missing: '" + subConfigFile + "'")
 
         if config.has_option("Configs","optional"):
             for subConfigFile in config.get("Configs","optional").split(','):
                 if os.path.isfile(subConfigFile):
                     if subConfigFile not in processedConfigs:
-                        logger.info("Reading optional config file: " + subConfigFile)
+                        logger.info("Reading optional config file: '" + subConfigFile + "'")
                         readConfigFile(config,subConfigFile,readMethod,logger,recurse-1)
                 else:
-                    logger.warning("Optional config file missing: " + subConfigFile)
+                    logger.warning("Optional config file missing: '" + subConfigFile + "'")
 
 def get_config(config, section, option, ctype=str, default=None): 
     """ Auxilliary method"""

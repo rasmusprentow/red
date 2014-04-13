@@ -118,9 +118,16 @@ class Activity(object):
         self.invokeLayoutFunction("updateInfoText", message)
 
 
-    def setTimer(self, activity, time=None):
+    def setTimedActivity(self, activity, time=None):
         """ Sets a timer and switches to the specified activity after 'time'. """
         if time == None:
             time = self.defaultSleepTime
         self.timer = Timer(time, self.switchActivity, [activity]) 
+        self.timer.start()
+
+    def setTimedLayout(self, layout, time=None):
+        """ Sets a timer and switches to the specified layout after 'time'. """
+        if time == None:
+            time = self.defaultSleepTime
+        self.timer = Timer(time, self.setLayout, [layout]) 
         self.timer.start()

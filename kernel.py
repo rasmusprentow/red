@@ -168,7 +168,11 @@ class Kernel(threading.Thread):
         
 
         self.activity = activityClass(self)
-        self.activity.onCreate(data) 
+        self.activity.onCreate(data)
+
+        if hasattr(self, "_session") and self._session != None:
+            self._session.close()
+            self._session = None
         
 
     def emptyQueue(self, name):

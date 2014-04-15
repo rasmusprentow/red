@@ -169,7 +169,7 @@ class NfcReader(object):
     The class will initiate connection once constructed.
     """
 
-    def __init__(self,nfcListener, port="/dev/ttyUSB0",baudrate=9600):
+    def __init__(self,nfcListener, port="/dev/ttyUSB0", baudrate=9600):
         self.port = port
         self.baudrate = baudrate
         self.stationId = 00;

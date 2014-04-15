@@ -5,8 +5,7 @@ import logging
 class Service(object):
 
     def __init__(self, name, context=None):
-        super(Service, self).__init__()
-        
+        super(Service, self).__init__() 
         real_context = context or zmq.Context.instance();
         self.socket = real_context.socket(zmq.PAIR)
         self.logger = logging.getLogger("kernel.Service")

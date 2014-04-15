@@ -137,6 +137,9 @@ class Kernel(threading.Thread):
         """ 
         Session property used for sqlalchemy
         """
+        if not config.has_section("Database"):
+            return None
+
         if not hasattr(self, "_session") or self._session == None:
             from models.model import engine
             from sqlalchemy.orm import sessionmaker

@@ -5,6 +5,7 @@ import Adafruit_BBIO.UART as UART
 import serial
 import os.path
 import json
+from red.config import get_config, config
 # UARTS on the BBB
 # UART    RX  TX  CTS RTS Device
 # UART1   P9_26   P9_24   P9_20   P9_19   /dev/ttyO1
@@ -19,21 +20,31 @@ class Uart(object):
     def __init__(self):
         pass
 
-    def start(number, ser=None, baudrate=9600):
-        UART.setup('UART' + number)
-        self.serial = ser or serial.Serial("/dev/ttyO"+number, baudrate)
+    def start(self,uartnum, ser=None, baudrate=9600, mockUart=False, sysprefix="/dev/ttyO"):
+        if not mockUart:
+            UART.setup('UART' + uartnum)
+        self.serial = ser or serial.Serial(sysprefix+uartnum, baudrate)
         return self
 
+    def startFromConfig(self, config):
+        uartnum = config.get('Intercom', 'uartnum')
+        mockUart =  get_config(config, 'Intercom', 'use_mock_uart', default='false') == 'true'
+        sysprefix = get_config(config, 'Intercom', 'sys_prefix', default='/dev/ttyO')
+       
+        self.start(uartnum=uartnum, mockUart=mockUart, sysprefix=sysprefix )
+      
+
     def sendJson(self, message):
-        self.write(message)
+        print ("sending " + str(message))
+        self.serial.write(json.dumps(message))
 
     def receiveJson(self):
         string = ""
         while True:
             string += self.serial.read()
             try:
-                json.loads(string)
-                return string
+                data = json.loads(string)
+                return data
             except ValueError as e: 
                 pass
     

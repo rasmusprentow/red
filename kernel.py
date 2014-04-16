@@ -15,6 +15,8 @@ import importlib
 
 
 
+mutex = threading.Lock()
+
 from red.utils.serviceFactory import ServiceFactory
 from red.config import config, get_config
 
@@ -35,6 +37,8 @@ class Kernel(threading.Thread):
         self.activity = None
         self.running = True
         self._session = None
+        self.nextActivity = ""
+        self.nextActivityData = None
       
 
     def receive(self, name, message):
@@ -43,6 +47,7 @@ class Kernel(threading.Thread):
         The activity will get the message in its 'receive<service>Message' method
 
         """
+        self.logger.info("Received: " + str(message))
         if message["head"] == "system_message":
             if "data" not in message:
                 self.logger.critical("Erroneous system_message. Msg: " + str(message))
@@ -95,7 +100,8 @@ class Kernel(threading.Thread):
         """Starting activity based on config"""
         startActivityName = config.get("Activities", "start")
         self.logger.info("Starting activity: " + startActivityName)
-        self.switchActivity(startActivityName, clearLpc=False)
+        self.nextActivity = startActivityName
+        self._initializeActivity(startActivityName, clearLpc=False)
 
        
     def run(self):
@@ -105,8 +111,12 @@ class Kernel(threading.Thread):
      
         # Process messages from  sockets
         while self.running:
+            mutex.acquire()
+            if self.nextActivity.capitalize() != self.activity.__class__.__name__:
+                self._initializeActivity(self.nextActivity, self.nextActivityData)
+            mutex.release()
             try:
-                poller_socks = dict(self.poller.poll(2))
+                poller_socks = dict(self.poller.poll(10))
                 
             except KeyboardInterrupt:
                 self.logger.info("Received Key interrupt. Exiting")
@@ -146,12 +156,16 @@ class Kernel(threading.Thread):
             self._session = sessionmaker(bind=engine)()
         return self._session
 
-    
+    def switchActivity(self, activity, data=None):
+        mutex.acquire()
+        self.nextActivityData = data
+        self.nextActivity = activity
+        mutex.release()
 
-    def switchActivity(self, activity, data=None, clearLpc=True):
+    def _initializeActivity(self, activity, data=None, clearLpc=True):
         """ Switches activity to the specified activity. Data is sent to the activity """
         Activity = activity.capitalize()
-        self.logger.debug("Switching activity to " + activity)
+        self.logger.info("Switching activity to " + activity)
         package = get_config(config, 'Activities', 'package', default='activities')
         moduleName = ''
         if len(package) > 0:
@@ -169,7 +183,7 @@ class Kernel(threading.Thread):
         if clearLpc:
             self.clearLpc() # ensure activities start in clean state
         
-
+      
         self.activity = activityClass(self)
         self.activity.onCreate(data)
 

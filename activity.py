@@ -106,7 +106,7 @@ class Activity(object):
         self._setSpecificLayout("error", nextActivity, nextLayout, time, message)
        
 
-    def setSuccessLayout(self,(self, nextActivity=None, nextLayout=None, time=0, message=None):
+    def setSuccessLayout(self, nextActivity=None, nextLayout=None, time=0, message=None):
         """ 
         Changes layout to the success layout.
         Message is the message to be displayed and sleep is the amount of time which the system sould wait
@@ -127,7 +127,7 @@ class Activity(object):
                 msg = "An Error Occurred"
             elif layout == "success":
                 msg = "Operation was successfull"
-        self.invokeLayoutFunction("update"+layout+"Text", msg)
+        self.invokeLayoutFunction("update"+layout.title()+"Text", msg)
         if nextActivity != None:
             self.setTimedActivity(nextActivity, time)
         elif nextLayout != None:

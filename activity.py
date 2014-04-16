@@ -101,29 +101,32 @@ class Activity(object):
     def setErrorLayout(self, message=None, sleep=0):
         """ 
         Changes layout to the error layout.
-        Message is the message to be displayed and sleep is the amount of time which the system sould sleep
+        Message is the message to be displayed and sleep is the amount of time which the system sould wait
         """
-        self.setLayout("error")
-        if message != None:
-            errorMsg = message
-        else:
-            errorMsg = "An Error Occurred"
-        self.invokeLayoutFunction("updateErrorText", errorMsg )
-        time.sleep(sleep)
+        self._setSpecificLayout("error", message, sleep)
 
     def setSuccessLayout(self, message=None, sleep=0):
         """ 
         Changes layout to the success layout.
-        Message is the message to be displayed and sleep is the amount of time which the system sould sleep
+        Message is the message to be displayed and sleep is the amount of time which the system sould wait
         """
-        self.setLayout("success")
-        if message != None:
-            successMsg = message
-        else:
-            successMsg = "Operation was successfull"
-        self.invokeLayoutFunction("updateSuccessText", successMsg )
-        time.sleep(sleep)
+        self._setSpecificLayout("success", message, sleep)
 
+    def _setSpecificLayout(self, layout, message=None, t=0):
+        """ 
+        Changes layout to a specified layout.
+        Message is the message to be displayed with, and 't' is the amount of time which the system sould wait
+        """
+        self.setLayout(layout)
+        if message != None:
+            msg = message
+        else:
+            if layout == "error":
+                msg = "An Error Occurred"
+            elif layout == "success":
+                msg = "Operation was successfull"
+        self.invokeLayoutFunction("update"+layout+"Text", msg)
+        time.sleep(t)
 
     def setLoadingScreen(self, message=""):
         """ Changed layout to a layout named loading and sets the specified message"""

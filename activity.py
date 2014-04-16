@@ -135,8 +135,11 @@ class Activity(object):
         """ Sets a timer and switches to the specified activity after 'time'. """
         if time == None:
             time = self.defaultSleepTime
-        self.timer = Timer(time, self.switchActivity, [activity]) 
-        self.timer.start()
+        if time > 0:
+            self.timer = Timer(time, self.switchActivity, [activity]) 
+            self.timer.start()
+        else: 
+            self.switchActivity(activity)
 
     def setTimedLayout(self, layout, time=None):
         """ Sets a timer and switches to the specified layout after 'time'. """

@@ -11,8 +11,9 @@ class Service(object):
         self.logger = logging.getLogger("kernel.Service." +  __name__)
         self.logger.info("Connection on socket : " + name)
         self.socket.connect(name)
-       
-
+    
+    def onCreate(self): 
+        pass
 
     def run(self):
         """ 

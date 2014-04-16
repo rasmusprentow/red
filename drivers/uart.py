@@ -23,7 +23,7 @@ class Uart(object):
     def start(self,uartnum, ser=None, baudrate=9600, mockUart=False, sysprefix="/dev/ttyO"):
         if not mockUart:
             UART.setup('UART' + uartnum)
-        self.serial = ser or serial.Serial(sysprefix+uartnum, baudrate)
+        self.serial = ser or serial.Serial(sysprefix+uartnum, baudrate, timeout=5)
         return self
 
     def startFromConfig(self, config):

@@ -28,6 +28,6 @@ def get_config(config, section, option, ctype=str, default=None):
             ret = confdict.get(section).get(option, default) 
         return ctype(ret) 
     except:
-        return ctype(default)
+        return default
 
 init()

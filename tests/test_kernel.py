@@ -18,7 +18,6 @@ class Test_kernel(Activity):
     """
     received = False
     def receiveTestMessage(self, message):
-        print "Got message"
         Test_kernel.received = True
 
 
@@ -73,6 +72,8 @@ class Test_KernelTest(unittest.TestCase):
 
         """ This tests that it does not throw renegade exceptions"""
         self.kernel.switchActivity("test_kernel")
+        self.kernel._initializeActivity("test_kernel")
+
         self.kernel.receive("test", {"head" : "echo"})
         self.assertTrue(Test_kernel.received)
 

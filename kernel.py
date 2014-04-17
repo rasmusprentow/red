@@ -202,6 +202,6 @@ class Kernel(threading.Thread):
     def clearLpc(self):
         """ Resets the lpc service if it exists """
         if "lpc" in self.services:
+            self.emptyQueue("lpc")
             if self.activity != None:
                 self.activity.send("lpc",{"head":"stop_operations"})
-            self.emptyQueue("lpc")

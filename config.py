@@ -3,6 +3,8 @@
 import configparser
 import sys, getopt, logging
 from red.utils.run_once import run_once
+import string
+import os.path
 
 global config
 global logger
@@ -16,6 +18,15 @@ def init ():
     ### Load config
     config = configparser.ConfigParser()
     config.read('config/init.conf')
+
+    if config.has_option("Configs","mandatories"):
+        for f in string.split(config.get("Configs","mandatories")):
+            config.read(f)
+
+    if config.has_option("Configs","optionals"):
+        for f in string.split(config.get("Configs","optionals")):
+            if os.path.isfile(f):
+                config.read(f)
 
 
 def get_config(config, section, option, ctype=str, default=None): 

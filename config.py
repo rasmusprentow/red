@@ -20,11 +20,11 @@ def init ():
     config.read('config/init.conf')
 
     if config.has_option("Configs","mandatories"):
-        for f in string.split(config.get("Configs","mandatories")):
+        for f in config.get("Configs","mandatories").split(","):
             config.read(f)
 
     if config.has_option("Configs","optionals"):
-        for f in string.split(config.get("Configs","optionals")):
+        for f in config.get("Configs","optionals").split(","):
             if os.path.isfile(f):
                 config.read(f)
 

@@ -41,14 +41,14 @@ class Red(object):
             logger.info('Zebra GUI initiated')
         
         ###############################
-        self.kernel.start()
         signal.signal(signal.SIGINT, self.signal_handler)
+        self.kernel.start()
         
         ###### This fellow must be run in the end ######
         if "display" in services:
             sys.exit(app.exec_())
 
     def signal_handler(self, signal, frame):
-        print 'You pressed Ctrl+C!'
+        print('You pressed Ctrl+C!')
         self.kernel.stop()
     

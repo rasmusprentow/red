@@ -98,19 +98,40 @@ class Activity(object):
         self.kernel.clearLpc()
 
 
-    def setErrorLayout(self, message=None, sleep=0):
+    def setErrorLayout(self, nextActivity=None, nextLayout=None, time=0, message=None):
         """ 
         Changes layout to the error layout.
-        Message is the message to be displayed and sleep is the amount of time which the system sould sleep
+        Message is the message to be displayed and sleep is the amount of time which the system sould wait
         """
-        self.setLayout("error")
-        if message != None:
-            errorMsg = message
-        else:
-            errorMsg = "An Error Occurred"
-        self.invokeLayoutFunction("updateErrorText", errorMsg )
-        time.sleep(sleep)
+        self._setSpecificLayout("error", nextActivity, nextLayout, time, message)
+       
 
+    def setSuccessLayout(self, nextActivity=None, nextLayout=None, time=0, message=None):
+        """ 
+        Changes layout to the success layout.
+        Message is the message to be displayed and sleep is the amount of time which the system sould wait
+        """
+        self._setSpecificLayout("success", nextActivity, nextLayout, time, message)
+
+
+    def _setSpecificLayout(self, layout, nextActivity=None, nextLayout=None, time=0, message=None):
+        """ 
+        Changes layout to a specified layout.
+        Message is the message to be displayed with, and 't' is the amount of time which the system sould wait
+        """
+        self.setLayout(layout)
+        if message != None:
+            msg = message
+        else:
+            if layout == "error":
+                msg = "An Error Occurred"
+            elif layout == "success":
+                msg = "Operation was successfull"
+        self.invokeLayoutFunction("update"+layout.title()+"Text", msg)
+        if nextActivity != None:
+            self.setTimedActivity(nextActivity, time)
+        elif nextLayout != None:
+            self.setTimedLayout(nextLayout, time)
 
     def setLoadingScreen(self, message=""):
         """ Changed layout to a layout named loading and sets the specified message"""
@@ -118,9 +139,20 @@ class Activity(object):
         self.invokeLayoutFunction("updateInfoText", message)
 
 
-    def setTimer(self, activity, time=None):
+    def setTimedActivity(self, activity, time):
         """ Sets a timer and switches to the specified activity after 'time'. """
-        if time == None:
-            time = self.defaultSleepTime
-        self.timer = Timer(time, self.switchActivity, [activity]) 
-        self.timer.start()
+     
+        if time > 0:
+            self.timer = Timer(time, self.switchActivity, [activity]) 
+            self.timer.start()
+        else: 
+            self.switchActivity(activity)
+
+    def setTimedLayout(self, layout, time):
+        """ Sets a timer and switches to the specified layout after 'time'. """
+      
+        if time > 0:
+            self.timer = Timer(time, self.setLayout, [layout]) 
+            self.timer.start()
+        else:
+            self.setLayout(layout)

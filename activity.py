@@ -103,7 +103,7 @@ class Activity(object):
         Changes layout to the error layout.
         Message is the message to be displayed and sleep is the amount of time which the system sould wait
         """
-        self._setSpecificLayout("error", nextActivity, nextLayout, time, message)
+        self._setSpecificLayout("common/error", nextActivity, nextLayout, time, message)
        
 
     def setSuccessLayout(self, nextActivity=None, nextLayout=None, time=0, message=None):
@@ -111,7 +111,7 @@ class Activity(object):
         Changes layout to the success layout.
         Message is the message to be displayed and sleep is the amount of time which the system sould wait
         """
-        self._setSpecificLayout("success", nextActivity, nextLayout, time, message)
+        self._setSpecificLayout("common/success", nextActivity, nextLayout, time, message)
 
 
     def _setSpecificLayout(self, layout, nextActivity=None, nextLayout=None, time=0, message=None):
@@ -123,9 +123,9 @@ class Activity(object):
         if message != None:
             msg = message
         else:
-            if layout == "error":
+            if layout == "common/error":
                 msg = "An Error Occurred"
-            elif layout == "success":
+            elif layout == "common/success":
                 msg = "Operation was successfull"
         self.invokeLayoutFunction("update"+layout.title()+"Text", msg)
         if nextActivity != None:
@@ -135,7 +135,7 @@ class Activity(object):
 
     def setLoadingScreen(self, message=""):
         """ Changed layout to a layout named loading and sets the specified message"""
-        self.setLayout("loading")
+        self.setLayout("common/loading")
         self.invokeLayoutFunction("updateInfoText", message)
 
 

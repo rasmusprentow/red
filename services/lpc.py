@@ -3,6 +3,8 @@
 from red.services.base import Service
 import zmq
 import red.drivers.nfc as nfc
+import traceback
+
 from red.config import config, get_config
 from threading import Thread
 
@@ -39,8 +41,12 @@ class Lpc(Service, Thread):
         if tagData.moreThanOneCard():
             self.nfcReader.getTagData()
             return
-
-        serial = tagData.getSerialAsHex()
+        try: 
+            serial = tagData.getSerialAsHex()
+        except Exception as e:
+            self.logger.fatal("Found exception: " + str(traceback.format_exc()))
+            self.nfcReader.getTagData()
+            return 
         message = {'head' : 'tag', 'data' : serial}
         self.send(message)
         self.nfcReader.clear()

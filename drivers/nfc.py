@@ -179,7 +179,10 @@ class NfcReader(object):
         self.reloadWorker()
 
     def start(self,ser=None):
-
+        if "/dev/ttyO" in self.port:
+            import Adafruit_BBIO.UART as UART
+          
+            UART.setup('UART' + str(self.port[-1]))
         self.serial = ser or serial.Serial(self.port, self.baudrate)
 
     def reloadWorker(self):

@@ -120,14 +120,17 @@ class Activity(object):
         Message is the message to be displayed with, and 't' is the amount of time which the system sould wait
         """
         self.setLayout(layout)
+        if layout == "common/error":
+            msg = "An Error Occurred"
+            layoutFunc = "updateErrorText"
+        elif layout == "common/success":
+            msg = "Operation was successfull"
+            layoutFunc = "updateSuccessText"
+        
         if message != None:
             msg = message
-        else:
-            if layout == "common/error":
-                msg = "An Error Occurred"
-            elif layout == "common/success":
-                msg = "Operation was successfull"
-        self.invokeLayoutFunction("update"+layout.title()+"Text", msg)
+            
+        self.invokeLayoutFunction(layoutFunc, msg)
         if nextActivity != None:
             self.setTimedActivity(nextActivity, time)
         elif nextLayout != None:

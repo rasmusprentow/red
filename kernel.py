@@ -196,13 +196,15 @@ class Kernel(threading.Thread):
     def emptyQueue(self, name):
         """ Empties the ZMQ queue """
         meta = self.services[name]
-       
-        while meta.socket.poll(2) != 0:
-            meta.socket.recv_json()
+        try:
+            while meta.socket.poll(2) != 0:
+                meta.socket.recv_json()
+        except:
+            pass
 
     def clearLpc(self):
         """ Resets the lpc service if it exists """
         if "lpc" in self.services:
             self.emptyQueue("lpc")
-            if self.activity != None:
+            if hasattr(self, "activity") and self.activity != None:
                 self.activity.send("lpc",{"head":"stop_operations"})

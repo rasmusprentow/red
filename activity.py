@@ -70,7 +70,7 @@ class Activity(object):
         if self.timer != None:
             self.timer.cancel()
             # timer is joined into kernel thread to ensure cancel 
-            self.timer.join() 
+            #self.timer.join() 
         self.timer = None
 
     def emptyQueue(self, name):

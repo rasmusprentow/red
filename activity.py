@@ -63,10 +63,15 @@ class Activity(object):
         Switch to the specified activity
         The data param gets sent to the new activity's onCreate method.
         """
-        if self.timer != None:
-            self.timer.cancel()
+        self.cancelTimer()
         self.kernel.switchActivity(activity, data)
 
+    def cancelTimer(self):
+        if self.timer != None:
+            self.timer.cancel()
+            # timer is joined into kernel thread to ensure cancel 
+            self.timer.join() 
+        self.timer = None
 
     def emptyQueue(self, name):
         """
@@ -144,7 +149,7 @@ class Activity(object):
 
     def setTimedActivity(self, activity, time):
         """ Sets a timer and switches to the specified activity after 'time'. """
-     
+        self.cancelTimer()
         if time > 0:
             self.timer = Timer(time, self.switchActivity, [activity]) 
             self.timer.start()
@@ -153,7 +158,7 @@ class Activity(object):
 
     def setTimedLayout(self, layout, time):
         """ Sets a timer and switches to the specified layout after 'time'. """
-      
+        self.cancelTimer()
         if time > 0:
             self.timer = Timer(time, self.setLayout, [layout]) 
             self.timer.start()

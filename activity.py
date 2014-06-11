@@ -63,7 +63,6 @@ class Activity(object):
         Switch to the specified activity
         The data param gets sent to the new activity's onCreate method.
         """
-        self.cancelTimer()
         self.kernel.switchActivity(activity, data)
 
     def cancelTimer(self):

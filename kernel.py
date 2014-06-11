@@ -184,7 +184,8 @@ class Kernel(threading.Thread):
         if clearLpc:
             self.clearLpc() # ensure activities start in clean state
         
-      
+        if self.activity != None:
+            self.activity.cancelTimer()
         self.activity = activityClass(self)
         self.activity.onCreate(data)
 

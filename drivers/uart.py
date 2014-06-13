@@ -30,8 +30,9 @@ class Uart(object):
         uartnum = config.get('Intercom', 'uartnum')
         mockUart =  get_config(config, 'Intercom', 'use_mock_uart', default='false') == 'true'
         sysprefix = get_config(config, 'Intercom', 'sys_prefix', default='/dev/ttyO')
+        baudrate = get_config(config, 'Intercom', 'baudrate', default=9600)
        
-        self.start(uartnum=uartnum, mockUart=mockUart, sysprefix=sysprefix )
+        self.start(uartnum=uartnum, mockUart=mockUart, sysprefix=sysprefix, baudrate=baudrate )
       
 
     def sendJson(self, message):

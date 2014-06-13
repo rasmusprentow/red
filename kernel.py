@@ -39,6 +39,7 @@ class Kernel(threading.Thread):
         self._session = None
         self.nextActivity = ""
         self.nextActivityData = None
+        self.newActivity = False
       
 
     def receive(self, name, message):
@@ -112,12 +113,12 @@ class Kernel(threading.Thread):
         # Process messages from  sockets
         while self.running:
             mutex.acquire()
-            if self.nextActivity.capitalize() != self.activity.__class__.__name__:
+            if self.newActivity:
+                self.newActivity = False
                 self._initializeActivity(self.nextActivity, self.nextActivityData)
             mutex.release()
             try:
-                poller_socks = dict(self.poller.poll(10))
-                
+                poller_socks = dict(self.poller.poll(10))          
             except KeyboardInterrupt:
                 self.logger.info("Received Key interrupt. Exiting")
                 break
@@ -128,7 +129,6 @@ class Kernel(threading.Thread):
                         self.receive(key, self.services[key].socket.recv_json())   
             except zmq.error.ContextTerminated:
                 self.logger.info("ContextTerminated " + __file__ + " is shutting down")
-                self.running = False
                 break
 
         self.logger.info("Stopping kernel.")
@@ -160,6 +160,7 @@ class Kernel(threading.Thread):
         mutex.acquire()
         self.nextActivityData = data
         self.nextActivity = activity
+        self.newActivity = True
         mutex.release()
 
     def _initializeActivity(self, activity, data=None, clearLpc=True):
@@ -183,7 +184,8 @@ class Kernel(threading.Thread):
         if clearLpc:
             self.clearLpc() # ensure activities start in clean state
         
-      
+        if self.activity != None:
+            self.activity.cancelTimer()
         self.activity = activityClass(self)
         self.activity.onCreate(data)
 
@@ -195,13 +197,15 @@ class Kernel(threading.Thread):
     def emptyQueue(self, name):
         """ Empties the ZMQ queue """
         meta = self.services[name]
-       
-        while meta.socket.poll(2) != 0:
-            meta.socket.recv_json()
+        try:
+            while meta.socket.poll(2) != 0:
+                meta.socket.recv_json()
+        except:
+            pass
 
     def clearLpc(self):
         """ Resets the lpc service if it exists """
         if "lpc" in self.services:
             self.emptyQueue("lpc")
-            if self.activity != None:
+            if hasattr(self, "activity") and self.activity != None:
                 self.activity.send("lpc",{"head":"stop_operations"})

@@ -43,8 +43,8 @@ class Red(object):
             logger.info('Zebra GUI initiated')
         
         ###############################
-        self.kernel.start()
         signal.signal(signal.SIGINT, self.signal_handler)
+        self.kernel.start()
         
         ###### This fellow must be run in the end ######
         if "display" in services:

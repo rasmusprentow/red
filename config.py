@@ -83,7 +83,6 @@ def readConfigFile(config, f, readMethod, logger, recurse=5):
                 else:
                     logger.critical("Mandatory config file missing: '" + subConfigFile + "'")
                     raise Exception("Mandatory config file missing: '" + subConfigFile + "'")
-
         if config.has_option("Configs","optional"):
             for subConfigFile in config.get("Configs","optional").split(','):
                 if os.path.isfile(subConfigFile):
@@ -103,6 +102,6 @@ def get_config(config, section, option, ctype=str, default=None):
             ret = confdict.get(section).get(option, default) 
         return ctype(ret) 
     except:
-        return ctype(default)
+        return default
 
 init_once()

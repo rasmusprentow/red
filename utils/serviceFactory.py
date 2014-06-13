@@ -113,6 +113,7 @@ class ServiceFactory (object):
             if module != None:
                 serviceClass = getattr(module, ServiceName)
                 meta.service = serviceClass(name=meta.socketName, context=self.module.context)
+                meta.service.onCreate()
                 meta.service.start();
 
 

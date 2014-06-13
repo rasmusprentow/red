@@ -30,6 +30,7 @@ class Lpc(Service, Thread):
             return True
         elif message['head'] == "stop_operations":
             self.nfcReader.stopAllCurrentOperations()
+            return True
         else:
             return False
             

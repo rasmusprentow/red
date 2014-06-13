@@ -63,10 +63,14 @@ class Activity(object):
         Switch to the specified activity
         The data param gets sent to the new activity's onCreate method.
         """
-        if self.timer != None:
-            self.timer.cancel()
         self.kernel.switchActivity(activity, data)
 
+    def cancelTimer(self):
+        if self.timer != None:
+            self.timer.cancel()
+            # timer is joined into kernel thread to ensure cancel 
+            #self.timer.join() 
+        self.timer = None
 
     def emptyQueue(self, name):
         """
@@ -103,7 +107,7 @@ class Activity(object):
         Changes layout to the error layout.
         Message is the message to be displayed and sleep is the amount of time which the system sould wait
         """
-        self._setSpecificLayout("error", nextActivity, nextLayout, time, message)
+        self._setSpecificLayout("common/error", nextActivity, nextLayout, time, message)
        
 
     def setSuccessLayout(self, nextActivity=None, nextLayout=None, time=0, message=None):
@@ -111,7 +115,7 @@ class Activity(object):
         Changes layout to the success layout.
         Message is the message to be displayed and sleep is the amount of time which the system sould wait
         """
-        self._setSpecificLayout("success", nextActivity, nextLayout, time, message)
+        self._setSpecificLayout("common/success", nextActivity, nextLayout, time, message)
 
 
     def _setSpecificLayout(self, layout, nextActivity=None, nextLayout=None, time=0, message=None):
@@ -120,14 +124,17 @@ class Activity(object):
         Message is the message to be displayed with, and 't' is the amount of time which the system sould wait
         """
         self.setLayout(layout)
+        if layout == "common/error":
+            msg = "An Error Occurred"
+            layoutFunc = "updateErrorText"
+        elif layout == "common/success":
+            msg = "Operation was successfull"
+            layoutFunc = "updateSuccessText"
+        
         if message != None:
             msg = message
-        else:
-            if layout == "error":
-                msg = "An Error Occurred"
-            elif layout == "success":
-                msg = "Operation was successfull"
-        self.invokeLayoutFunction("update"+layout.title()+"Text", msg)
+            
+        self.invokeLayoutFunction(layoutFunc, msg)
         if nextActivity != None:
             self.setTimedActivity(nextActivity, time)
         elif nextLayout != None:
@@ -135,13 +142,13 @@ class Activity(object):
 
     def setLoadingScreen(self, message=""):
         """ Changed layout to a layout named loading and sets the specified message"""
-        self.setLayout("loading")
+        self.setLayout("common/loading")
         self.invokeLayoutFunction("updateInfoText", message)
 
 
     def setTimedActivity(self, activity, time):
         """ Sets a timer and switches to the specified activity after 'time'. """
-     
+        self.cancelTimer()
         if time > 0:
             self.timer = Timer(time, self.switchActivity, [activity]) 
             self.timer.start()
@@ -150,7 +157,7 @@ class Activity(object):
 
     def setTimedLayout(self, layout, time):
         """ Sets a timer and switches to the specified layout after 'time'. """
-      
+        self.cancelTimer()
         if time > 0:
             self.timer = Timer(time, self.setLayout, [layout]) 
             self.timer.start()

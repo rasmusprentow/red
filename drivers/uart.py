@@ -6,6 +6,9 @@ import serial
 import os.path
 import json
 from red.config import get_config, config
+import logging 
+logger = logging.getLogger("kernel.uart")
+
 # UARTS on the BBB
 # UART    RX  TX  CTS RTS Device
 # UART1   P9_26   P9_24   P9_20   P9_19   /dev/ttyO1
@@ -23,6 +26,7 @@ class Uart(object):
     def start(self,uartnum, ser=None, baudrate=9600, mockUart=False, sysprefix="/dev/ttyO"):
         if not mockUart:
             UART.setup('UART' + uartnum)
+        print("Baudrate is: " + baudrate)
         self.serial = ser or serial.Serial(sysprefix+uartnum, baudrate, timeout=5)
         return self
 
@@ -36,15 +40,17 @@ class Uart(object):
       
 
     def sendJson(self, message):
-        print ("sending " + str(message))
+        logger.info ("sending " + str(message))
         self.serial.write(json.dumps(message))
 
     def receiveJson(self):
         string = ""
         while True:
             string += self.serial.read()
+            logger.info("Receiving " + string)
             try:
                 data = json.loads(string)
+
                 return data
             except ValueError as e: 
                 pass

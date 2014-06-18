@@ -29,7 +29,7 @@ class Kernel(threading.Thread):
 
         
         self.logger = logging.getLogger("kernel")
-
+        self.messagelogger = logging.getLogger("zeromqmessages")
         self.context = zmq.Context()
         self.poller = zmq.Poller()
         
@@ -42,13 +42,19 @@ class Kernel(threading.Thread):
         self.newActivity = False
       
 
+    def messageLog(self, message):
+        if hasattr(self, 'messagelogger'):
+            self.messagelogger.info(message)
+
     def receive(self, name, message):
         """ 
         Reveive method for any messages reeived from any service 
         The activity will get the message in its 'receive<service>Message' method
 
         """
-        self.logger.info("Received: " + str(message))
+        #self.logger.info("Received: " + str(message))
+        self.messageLog("From: " + str(name) + " " + str(message))
+        
         if message["head"] == "system_message":
             if "data" not in message:
                 self.logger.critical("Erroneous system_message. Msg: " + str(message))
@@ -138,6 +144,7 @@ class Kernel(threading.Thread):
         """ 
         Sends a message to the specified service 
         """
+        self.messageLog("To: " + str(service) + " " + str(message))
         assert service in self.services, ("The Specified service: " + str(service) + " was not in services: " + str(self.services))
         self.services[service].socket.send_json(message)
 
@@ -166,7 +173,7 @@ class Kernel(threading.Thread):
     def _initializeActivity(self, activity, data=None, clearLpc=True):
         """ Switches activity to the specified activity. Data is sent to the activity """
         Activity = activity.capitalize()
-        self.logger.info("Switching activity to " + activity)
+        #self.logger.info("Switching activity to " + activity)
         package = get_config(config, 'Activities', 'package', default='activities')
         moduleName = ''
         if len(package) > 0:

@@ -43,6 +43,7 @@ class MockKernel(Kernel):
     def __init__(self):
         #super(MockKernel, self).__init__()
         self.act = None
+        
         pass
 
 
@@ -60,6 +61,12 @@ class BaseActivityTest(unittest.TestCase):
 
         self.kernel.services = {}
 
+    def tearDown(self):
+      
+        """Call after every test case."""
+        #self.activity.cancelTimer()
+
+
 
     def getActivity(self, activity):
         """ Takes an activity as instance and instanciates it correctly. 
@@ -70,6 +77,9 @@ class BaseActivityTest(unittest.TestCase):
 
         a = newActivity(self.kernel)
         a.defaultSleepTime = 0
+        a.notificationSleepTime = 0
+        a.errorNotificationSleepTime = 0
+
         return a
 
     def setServices(self, services):

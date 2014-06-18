@@ -38,7 +38,7 @@ class Test_KernelTest(unittest.TestCase):
         except:
             pass
 
-        config.set('Shop', 'voucher_percentage', '33')
+        config.set('Shop', 'voucher_percentage', '33.3334')
         config.set('Shop', 'fee_percentage', '1')
         config.set('Shop', 'name', 'enviclean')
         

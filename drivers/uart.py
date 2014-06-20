@@ -65,7 +65,7 @@ class Uart(object):
                 timer = Timer(10, lambda x: self.setTimedout(x) , [True]) 
                 timer.daemon = True
                 timer.start()
-            logger.info("Receiving " + string)
+            logger.info("Receiving '" + string + "'")
             try:
                 data = json.loads(string)
 

@@ -24,13 +24,19 @@ class MainWindow(QtGui.QMainWindow):
             self.showFullScreen()
         else:
             self.resize(480,272)
-        Display._instance.functionSignal.connect(self.functionCall)
-        Display._instance.layoutSignal.connect(self.setLayout)
         
+        Display._instance.functionSignal.connect(self.functionCall)
+        Display._instance.fourIntsSignal.connect(self.fourIntsCall)
+        Display._instance.layoutSignal.connect(self.setLayout)
+         
      
     def functionCall(self, functionName, param):
         func = eval("self.view.rootObject()." + functionName)
         func(param)
+
+    def fourIntsCall(self, functionName, param1, param2):
+        func = eval("self.view.rootObject()." + functionName)
+        func(param1, param2)    
 
     def setLayout(self, layout):
         self.view = QtDeclarative.QDeclarativeView()

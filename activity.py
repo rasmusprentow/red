@@ -160,6 +160,7 @@ class Activity(object):
         self.cancelTimer()
         if time > 0:
             self.timer = Timer(time, self.setLayout, [layout]) 
+            self.daemon = True
             self.timer.start()
         else:
             self.setLayout(layout)

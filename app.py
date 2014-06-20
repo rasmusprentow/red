@@ -30,6 +30,7 @@ class Red(object):
 
 
         self.kernel = Kernel()
+        signal.signal(signal.SIGINT, self.signal_handler)
         
         ##### This is QT load UI ######
         services = config.get('Services','Services').split(",")
@@ -41,7 +42,6 @@ class Red(object):
             logger.info('Zebra GUI initiated')
         
         ###############################
-        signal.signal(signal.SIGINT, self.signal_handler)
         self.kernel.start()
         
         ###### This fellow must be run in the end ######

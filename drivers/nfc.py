@@ -159,6 +159,7 @@ class MockNfcWoker(NfcWoker):
     def run(self):
         self.running = True
         self.reader.listener(MockMessage(raw_input()))
+        self.running = False
             
 
 ###################################################################################
@@ -258,7 +259,6 @@ class NfcReader(object):
         self.serial.flush()
  
     def stopAllCurrentOperations(self):
-
         self.worker.running = False
         try: 
             self.worker.join()
@@ -279,7 +279,6 @@ class MockNfcReader(NfcReader):
 
 
     def start(self,ser=None):
-
         pass
  
     def clear(self):

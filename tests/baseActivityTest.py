@@ -60,6 +60,15 @@ class BaseActivityTest(unittest.TestCase):
         self.kernel = MockKernel()
 
         self.kernel.services = {}
+        try:
+            config.add_section('Database')
+        except:
+            pass
+
+        config.set('Database','connectionstring','sqlite://')
+
+        if self.kernel.session == None:
+            raise Exception("The test framework is broken")
 
     def tearDown(self):
       
@@ -91,7 +100,6 @@ class BaseActivityTest(unittest.TestCase):
         """ Asserts that the required service received the argument """
         foundAnything = False
         for received in self.kernel.services[service].getReceived():
-            print received
             foundAnything = foundAnything or arg == received
         self.assertEqual(True, foundAnything, "Tryed to find: " + str(arg) + " found:")
 

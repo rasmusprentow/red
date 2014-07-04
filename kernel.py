@@ -184,7 +184,7 @@ class Kernel(threading.Thread):
             self.logger.debug("Importing " + moduleName)
             module = importlib.import_module(moduleName) #,package=package)     
         except ImportError as e: 
-            self.logger.critical("The module '%s' did not exist as an activity in package: %s. Exception: %s" % (activity, package, str(e)))
+            self.logger.critical("The module '%s' did not exist as an activity in package: %s. Exception: %s" % (activity, package, str(traceback.format_exc())))
             return
      
         activityClass = getattr(module, Activity)

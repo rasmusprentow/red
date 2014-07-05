@@ -16,6 +16,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__(None)
         self.context = None
+        self.lastView = None
         self.centralWidget = QtGui.QStackedWidget()
         self.setCentralWidget(self.centralWidget)
         self.setLayout("common/loading")
@@ -48,6 +49,8 @@ class MainWindow(QtGui.QMainWindow):
 
         qcontext = self.view.rootContext() 
         qcontext.setContextProperty("context",Display._instance)
- 
+        if self.lastView != None:
+            self.centralWidget.removeWidget(self.lastView)
+        self.lastView = self.view
         self.centralWidget.addWidget(self.view)
         self.centralWidget.setCurrentWidget(self.view)

@@ -101,7 +101,7 @@ class BaseActivityTest(unittest.TestCase):
         foundAnything = False
         for received in self.kernel.services[service].getReceived():
             foundAnything = foundAnything or arg == received
-        self.assertEqual(True, foundAnything, "Tryed to find: " + str(arg) + " found:")
+        self.assertEqual(True, foundAnything, "Tryed to find: " + str(arg) + " found:" + str(self.kernel.services[service].getReceived()))
 
     def assertSwitchActivity(self, activity=None, data=None, anyActivity=False):
         if anyActivity:

@@ -2,7 +2,7 @@
  Pylint: pylint2  kernel.py --disable=trailing-whitespace --disable=line-too-long --disable=no-member --disable=invalid-name
 """
 import logging, logging.config
-import zmq
+import zmq, sys
 import threading
 import traceback
 
@@ -23,10 +23,10 @@ from red.config import config, get_config
 class Kernel(threading.Thread):
     """ The Kernel is the core of RED. It is "the controller" of everything """
 
-    def __init__(self):
+    def __init__(self, app):
         super(Kernel, self).__init__()
        
-
+        self.app = app
         
         self.logger = logging.getLogger("kernel")
         self.messagelogger = logging.getLogger("zeromqmessages")
@@ -59,7 +59,8 @@ class Kernel(threading.Thread):
             if "data" not in message:
                 self.logger.critical("Erroneous system_message. Msg: " + str(message))
             if message["data"] == "stop":
-                self.stop() 
+                pass
+                #self.stop() 
             if message["data"] == "echo":
                 self.logger.info("Received echo from " + name)  
             return         
@@ -95,13 +96,20 @@ class Kernel(threading.Thread):
 
     def stop(self):
         """ Stops all running services and itself """
-        self.running = False
 
         for key in self.services:
             service = self.services[key]
             if not config.has_option("Sockets", "keyinput") or service.socketName != config.get("Sockets", "keyinput"):
+                try:
+                    service.service.running = False
+                except: 
+                    self.logger.debug(traceback.format_exc())
                 self.logger.info("Terminating socket: " + service.socketName)
                 service.socket.send_json({"head" : "system_message" , "data" : "stop"})
+        
+        self.running = False
+
+        # sys.exit()
 
     def startActivities(self):
         """Starting activity based on config"""

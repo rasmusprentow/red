@@ -29,7 +29,7 @@ class Red(object):
 
 
 
-        self.kernel = Kernel()
+        self.kernel = Kernel(app)
         signal.signal(signal.SIGINT, self.signal_handler)
         
         ##### This is QT load UI ######

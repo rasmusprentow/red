@@ -47,7 +47,7 @@ class Test_KernelTest(unittest.TestCase):
         config.set('Activities', 'start', 'test_kernel')
         config.set('Activities', 'package', 'red.tests')
 
-        self.kernel = Kernel()
+        self.kernel = Kernel(None)
  
     def tearDown(self):
         """Call after every test case."""

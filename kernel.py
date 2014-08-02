@@ -187,11 +187,12 @@ class Kernel(threading.Thread):
         if self.activity != None:
             self.activity.cancelTimer()
         self.activity = activityClass(self)
-        self.activity.onCreate(data)
+        #The three lines below ruins the match saving
+        #if hasattr(self, "_session") and self._session != None:
+        #    self._session.close()
+        #    self._session = None
 
-        if hasattr(self, "_session") and self._session != None:
-            self._session.close()
-            self._session = None
+        self.activity.onCreate(data)
         
 
     def emptyQueue(self, name):

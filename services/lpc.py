@@ -21,6 +21,7 @@ class Lpc(Service, Thread):
         self.nfcReader.start()
 
     def processMessage(self, message):
+        self.logger.info("Received: " + str(message))
         if(message['head'] == "get_tag"):
             self.nfcReader.getTagData()
             return True
@@ -37,7 +38,6 @@ class Lpc(Service, Thread):
             return False
             
     def onNfcMessage(self,tagData):
-        
         if tagData.moreThanOneCard():
             self.nfcReader.getTagData()
             return

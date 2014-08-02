@@ -108,7 +108,7 @@ class ServiceFactory (object):
                     logger.info("Importing " + moduleName)
                     module = importlib.import_module(moduleName) 
                 except Exception as e: 
-                    logger.critical("The service '%s' did not exist as an service. Exception: %s" % (serviceName, str(e)))
+                    logger.critical("The service '%s' did not exist as a service. Exception: %s" % (serviceName, str(e)))
             
             if module != None:
                 serviceClass = getattr(module, ServiceName)

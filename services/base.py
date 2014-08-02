@@ -29,8 +29,7 @@ class Service(object):
                 message = {'head' : 'error', 'data' : 'Malformed data: Head missing'}
                 self.send(message)
             elif message['head'] == "system_message":
-
-                if message['head'] == "stop":
+                if message['data'] == "stop":
                     self.running = False
                     break;
                 elif message['data'] == "echo":

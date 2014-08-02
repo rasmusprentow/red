@@ -11,6 +11,7 @@ class Service(object):
         self.logger = logging.getLogger("kernel.Service." +  __name__)
         self.logger.info("Connection on socket : " + name)
         self.socket.connect(name)
+        self.running = True
     
     def onCreate(self): 
         pass
@@ -19,7 +20,7 @@ class Service(object):
         """ 
         Do not override this method
         """
-        while True:
+        while self.running:
             try:
                 message = self.socket.recv_json()
             except zmq.error.ContextTerminated:
@@ -28,8 +29,8 @@ class Service(object):
                 message = {'head' : 'error', 'data' : 'Malformed data: Head missing'}
                 self.send(message)
             elif message['head'] == "system_message":
-
                 if message['data'] == "stop":
+                    self.running = False
                     break;
                 elif message['data'] == "echo":
                     self.send({'head' : 'system_message', 'data' : 'echo'})

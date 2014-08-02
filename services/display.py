@@ -10,7 +10,7 @@ class Display(Service, QThread, QObject):
 
     layoutSignal = Signal(object)
     functionSignal = Signal(str,str)
-
+    fourIntsSignal = Signal(str,int,int)
     _instance = None
 
     def __init__(self, name, context=None):
@@ -21,9 +21,13 @@ class Display(Service, QThread, QObject):
         if message["head"] == "set_layout":
             self.layoutSignal.emit(message["data"])
             return True
-        elif message["head"] == "call_func":
-            self.functionSignal.emit(message["data"]["func"],str(message["data"]["param"])) 
-            return True
+        elif message["head"] == "call_func": 
+            param = message["data"]["param"] 
+            if (not isinstance(param, tuple)) and (not isinstance(param, list)) :
+                self.functionSignal.emit(message["data"]["func"],str(message["data"]["param"]))        
+            else:
+                self.fourIntsSignal.emit(message["data"]["func"],message["data"]["param"][0],message["data"]["param"][1])      
+            return True     
         else:
             return False
 

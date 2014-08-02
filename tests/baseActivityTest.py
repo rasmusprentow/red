@@ -43,6 +43,7 @@ class MockKernel(Kernel):
     def __init__(self):
         #super(MockKernel, self).__init__()
         self.act = None
+        
         pass
 
 
@@ -59,6 +60,21 @@ class BaseActivityTest(unittest.TestCase):
         self.kernel = MockKernel()
 
         self.kernel.services = {}
+        try:
+            config.add_section('Database')
+        except:
+            pass
+
+        config.set('Database','connectionstring','sqlite://')
+
+        if self.kernel.session == None:
+            raise Exception("The test framework is broken")
+
+    def tearDown(self):
+      
+        """Call after every test case."""
+        #self.activity.cancelTimer()
+
 
 
     def getActivity(self, activity):
@@ -70,6 +86,9 @@ class BaseActivityTest(unittest.TestCase):
 
         a = newActivity(self.kernel)
         a.defaultSleepTime = 0
+        a.notificationSleepTime = 0
+        a.errorNotificationSleepTime = 0
+
         return a
 
     def setServices(self, services):
@@ -81,9 +100,8 @@ class BaseActivityTest(unittest.TestCase):
         """ Asserts that the required service received the argument """
         foundAnything = False
         for received in self.kernel.services[service].getReceived():
-            print received
             foundAnything = foundAnything or arg == received
-        self.assertEqual(True, foundAnything, "Tryed to find: " + str(arg) + " found:")
+        self.assertEqual(True, foundAnything, "Tryed to find: " + str(arg) + " found:" + str(self.kernel.services[service].getReceived()))
 
     def assertSwitchActivity(self, activity=None, data=None, anyActivity=False):
         if anyActivity:

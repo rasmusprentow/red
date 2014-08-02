@@ -114,6 +114,7 @@ class ServiceFactory (object):
                 serviceClass = getattr(module, ServiceName)
                 meta.service = serviceClass(name=meta.socketName, context=self.module.context)
                 meta.service.onCreate()
+                meta.service.deamon = True
                 meta.service.start();
 
 

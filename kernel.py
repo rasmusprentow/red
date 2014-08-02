@@ -2,7 +2,7 @@
  Pylint: pylint2  kernel.py --disable=trailing-whitespace --disable=line-too-long --disable=no-member --disable=invalid-name
 """
 import logging, logging.config
-import zmq
+import zmq, sys
 import threading
 import traceback
 
@@ -23,13 +23,13 @@ from red.config import config, get_config
 class Kernel(threading.Thread):
     """ The Kernel is the core of RED. It is "the controller" of everything """
 
-    def __init__(self):
+    def __init__(self, app):
         super(Kernel, self).__init__()
        
-
+        self.app = app
         
         self.logger = logging.getLogger("kernel")
-
+        self.messagelogger = logging.getLogger("zeromqmessages")
         self.context = zmq.Context()
         self.poller = zmq.Poller()
         
@@ -42,18 +42,25 @@ class Kernel(threading.Thread):
         self.newActivity = False
       
 
+    def messageLog(self, message):
+        if hasattr(self, 'messagelogger'):
+            self.messagelogger.info(message)
+
     def receive(self, name, message):
         """ 
         Reveive method for any messages reeived from any service 
         The activity will get the message in its 'receive<service>Message' method
 
         """
-        self.logger.info("Received: " + str(message))
+        #self.logger.info("Received: " + str(message))
+        self.messageLog("From: " + str(name) + " " + str(message))
+        
         if message["head"] == "system_message":
             if "data" not in message:
                 self.logger.critical("Erroneous system_message. Msg: " + str(message))
             if message["data"] == "stop":
-                self.stop() 
+                pass
+                #self.stop() 
             if message["data"] == "echo":
                 self.logger.info("Received echo from " + name)  
             return         
@@ -89,13 +96,20 @@ class Kernel(threading.Thread):
 
     def stop(self):
         """ Stops all running services and itself """
-        self.running = False
 
         for key in self.services:
             service = self.services[key]
             if not config.has_option("Sockets", "keyinput") or service.socketName != config.get("Sockets", "keyinput"):
+                try:
+                    service.service.running = False
+                except: 
+                    self.logger.debug(traceback.format_exc())
                 self.logger.info("Terminating socket: " + service.socketName)
                 service.socket.send_json({"head" : "system_message" , "data" : "stop"})
+        
+        self.running = False
+
+        # sys.exit()
 
     def startActivities(self):
         """Starting activity based on config"""
@@ -138,6 +152,7 @@ class Kernel(threading.Thread):
         """ 
         Sends a message to the specified service 
         """
+        self.messageLog("To: " + str(service) + " " + str(message))
         assert service in self.services, ("The Specified service: " + str(service) + " was not in services: " + str(self.services))
         self.services[service].socket.send_json(message)
 
@@ -166,7 +181,7 @@ class Kernel(threading.Thread):
     def _initializeActivity(self, activity, data=None, clearLpc=True):
         """ Switches activity to the specified activity. Data is sent to the activity """
         Activity = activity.capitalize()
-        self.logger.info("Switching activity to " + activity)
+        #self.logger.info("Switching activity to " + activity)
         package = get_config(config, 'Activities', 'package', default='activities')
         moduleName = ''
         if len(package) > 0:
@@ -177,7 +192,7 @@ class Kernel(threading.Thread):
             self.logger.debug("Importing " + moduleName)
             module = importlib.import_module(moduleName) #,package=package)     
         except ImportError as e: 
-            self.logger.critical("The module '%s' did not exist as an activity in package: %s. Exception: %s" % (activity, package, str(e)))
+            self.logger.critical("The module '%s' did not exist as an activity in package: %s. Exception: %s" % (activity, package, str(traceback.format_exc())))
             return
      
         activityClass = getattr(module, Activity)

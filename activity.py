@@ -140,10 +140,11 @@ class Activity(object):
         elif nextLayout != None:
             self.setTimedLayout(nextLayout, time)
 
-    def setLoadingScreen(self, message=""):
+    def setLoadingScreen(self, message="", submessage=""):
         """ Changed layout to a layout named loading and sets the specified message"""
         self.setLayout("common/loading")
         self.invokeLayoutFunction("updateInfoText", message)
+        self.invokeLayoutFunction("updateSubInfoText", submessage)
 
 
     def setTimedActivity(self, activity, time):
@@ -160,6 +161,7 @@ class Activity(object):
         self.cancelTimer()
         if time > 0:
             self.timer = Timer(time, self.setLayout, [layout]) 
+            self.daemon = True
             self.timer.start()
         else:
             self.setLayout(layout)

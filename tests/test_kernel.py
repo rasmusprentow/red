@@ -18,7 +18,6 @@ class Test_kernel(Activity):
     """
     received = False
     def receiveTestMessage(self, message):
-        print "Got message"
         Test_kernel.received = True
 
 
@@ -30,12 +29,16 @@ class Test_KernelTest(unittest.TestCase):
         
         try:
             config.add_section('Shop')
+        except:
+            pass
+
+        try: 
             config.add_section('Services')
             config.add_section('Activities')
         except:
             pass
 
-        config.set('Shop', 'voucher_percentage', '33')
+        config.set('Shop', 'voucher_percentage', '33.3334')
         config.set('Shop', 'fee_percentage', '1')
         config.set('Shop', 'name', 'enviclean')
         
@@ -44,7 +47,7 @@ class Test_KernelTest(unittest.TestCase):
         config.set('Activities', 'start', 'test_kernel')
         config.set('Activities', 'package', 'red.tests')
 
-        self.kernel = Kernel()
+        self.kernel = Kernel(None)
  
     def tearDown(self):
         """Call after every test case."""
@@ -69,6 +72,8 @@ class Test_KernelTest(unittest.TestCase):
 
         """ This tests that it does not throw renegade exceptions"""
         self.kernel.switchActivity("test_kernel")
+        self.kernel._initializeActivity("test_kernel")
+
         self.kernel.receive("test", {"head" : "echo"})
         self.assertTrue(Test_kernel.received)
 

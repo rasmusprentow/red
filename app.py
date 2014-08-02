@@ -29,7 +29,8 @@ class Red(object):
 
 
 
-        self.kernel = Kernel()
+        self.kernel = Kernel(app)
+        signal.signal(signal.SIGINT, self.signal_handler)
         
         ##### This is QT load UI ######
         services = config.get('Services','Services').split(",")
@@ -42,13 +43,12 @@ class Red(object):
         
         ###############################
         self.kernel.start()
-        signal.signal(signal.SIGINT, self.signal_handler)
         
         ###### This fellow must be run in the end ######
         if "display" in services:
             sys.exit(app.exec_())
 
     def signal_handler(self, signal, frame):
-        print 'You pressed Ctrl+C!'
+        print('You pressed Ctrl+C!')
         self.kernel.stop()
     

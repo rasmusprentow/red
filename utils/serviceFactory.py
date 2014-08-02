@@ -98,21 +98,23 @@ class ServiceFactory (object):
 
       
             module = None
+            moduleName = "services." + serviceName
+            logger.info("Importing " + moduleName)
             try: 
-                moduleName = "red.services." + serviceName
-                logger.debug("Importing " + moduleName)
                 module = importlib.import_module(moduleName) 
-            except ImportError as e: 
+            except Exception as e: 
                 try:
-                    moduleName = "red." + moduleName
-                    logger.debug("Importing " + moduleName)
+                    moduleName = "red.services." + serviceName
+                    logger.info("Importing " + moduleName)
                     module = importlib.import_module(moduleName) 
-                except ImportError as e: 
+                except Exception as e: 
                     logger.critical("The service '%s' did not exist as an service. Exception: %s" % (serviceName, str(e)))
             
             if module != None:
                 serviceClass = getattr(module, ServiceName)
                 meta.service = serviceClass(name=meta.socketName, context=self.module.context)
+                meta.service.onCreate()
+                meta.service.deamon = True
                 meta.service.start();
 
 

@@ -16,21 +16,28 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__(None)
         self.context = None
+        self.lastView = None
         self.centralWidget = QtGui.QStackedWidget()
         self.setCentralWidget(self.centralWidget)
-        self.setLayout("loading")
+        self.setLayout("common/loading")
         
         if get_config(config,"GUI","fullscreen",default='false') == "true":
             self.showFullScreen()
         else:
             self.resize(480,272)
-        Display._instance.functionSignal.connect(self.functionCall)
-        Display._instance.layoutSignal.connect(self.setLayout)
         
+        Display._instance.functionSignal.connect(self.functionCall)
+        Display._instance.fourIntsSignal.connect(self.fourIntsCall)
+        Display._instance.layoutSignal.connect(self.setLayout)
+         
      
     def functionCall(self, functionName, param):
         func = eval("self.view.rootObject()." + functionName)
         func(param)
+
+    def fourIntsCall(self, functionName, param1, param2):
+        func = eval("self.view.rootObject()." + functionName)
+        func(param1, param2)    
 
     def setLayout(self, layout):
         self.view = QtDeclarative.QDeclarativeView()
@@ -42,6 +49,8 @@ class MainWindow(QtGui.QMainWindow):
 
         qcontext = self.view.rootContext() 
         qcontext.setContextProperty("context",Display._instance)
- 
+        if self.lastView != None:
+            self.centralWidget.removeWidget(self.lastView)
+        self.lastView = self.view
         self.centralWidget.addWidget(self.view)
         self.centralWidget.setCurrentWidget(self.view)

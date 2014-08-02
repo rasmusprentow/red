@@ -6,6 +6,7 @@ The activity module it the mother of all other activities
 
 
 import logging, time
+from threading import Timer
 
 
 class Activity(object):
@@ -22,6 +23,7 @@ class Activity(object):
         self.logger = logging.getLogger('activity.' + str(self.__class__.__name__))
         self._session = None
         self.defaultSleepTime = 5
+        self.timer = None
     
 
     def onCreate(self, data=None):
@@ -31,6 +33,7 @@ class Activity(object):
         The data parameter contains whatever got passed from switchActivity
         """
         pass
+
 
     def setLayout(self, layout, sleep=0):
         """
@@ -42,14 +45,19 @@ class Activity(object):
         if sleep > 0:
             time.sleep(sleep)
 
-    def send(self, service, message):
+
+    def send(self, service, message=None, head=None, data=None):
         """ 
         Send message to any service. 
         Message must be a dictionary.
+        If the head parameter is set message can be ignored.
         """
-        self.kernel.send(service, message)
+        if head != None:
+            self.kernel.send(service, {"head" : head, "data" : data})
+        else:
+            self.kernel.send(service, message)
 
-    
+  
     def switchActivity(self, activity, data=None):
         """ 
         Switch to the specified activity
@@ -57,6 +65,12 @@ class Activity(object):
         """
         self.kernel.switchActivity(activity, data)
 
+    def cancelTimer(self):
+        if self.timer != None:
+            self.timer.cancel()
+            # timer is joined into kernel thread to ensure cancel 
+            #self.timer.join() 
+        self.timer = None
 
     def emptyQueue(self, name):
         """
@@ -73,6 +87,7 @@ class Activity(object):
         """
         return self.kernel.session
 
+
     def invokeLayoutFunction(self, function, param):
         """
         Use this method to update anything on the layout. 
@@ -87,20 +102,66 @@ class Activity(object):
         self.kernel.clearLpc()
 
 
-    def setErrorLayout(self, message=None, sleep=0):
+    def setErrorLayout(self, nextActivity=None, nextLayout=None, time=0, message=None):
         """ 
         Changes layout to the error layout.
-        Message is the message to be displayed and sleep is the amount of time which the system sould sleep
+        Message is the message to be displayed and sleep is the amount of time which the system sould wait
         """
-        self.setLayout("error")
+        self._setSpecificLayout("common/error", nextActivity, nextLayout, time, message)
+       
+
+    def setSuccessLayout(self, nextActivity=None, nextLayout=None, time=0, message=None):
+        """ 
+        Changes layout to the success layout.
+        Message is the message to be displayed and sleep is the amount of time which the system sould wait
+        """
+        self._setSpecificLayout("common/success", nextActivity, nextLayout, time, message)
+
+
+    def _setSpecificLayout(self, layout, nextActivity=None, nextLayout=None, time=0, message=None):
+        """ 
+        Changes layout to a specified layout.
+        Message is the message to be displayed with, and 't' is the amount of time which the system sould wait
+        """
+        self.setLayout(layout)
+        if layout == "common/error":
+            msg = "An Error Occurred"
+            layoutFunc = "updateErrorText"
+        elif layout == "common/success":
+            msg = "Operation was successfull"
+            layoutFunc = "updateSuccessText"
+        
         if message != None:
-            errorMsg = message
-        else:
-            errorMsg = "An Error Occurred"
-        self.invokeLayoutFunction("updateErrorText", errorMsg )
-        time.sleep(sleep)
+            msg = message
+            
+        self.invokeLayoutFunction(layoutFunc, msg)
+        if nextActivity != None:
+            self.setTimedActivity(nextActivity, time)
+        elif nextLayout != None:
+            self.setTimedLayout(nextLayout, time)
 
-
-    def setLoadingScreen(self, message=""):
-        self.setLayout("loading")
+    def setLoadingScreen(self, message="", submessage=""):
+        """ Changed layout to a layout named loading and sets the specified message"""
+        self.setLayout("common/loading")
         self.invokeLayoutFunction("updateInfoText", message)
+        self.invokeLayoutFunction("updateSubInfoText", submessage)
+
+
+    def setTimedActivity(self, activity, time):
+        """ Sets a timer and switches to the specified activity after 'time'. """
+        self.cancelTimer()
+        if time > 0:
+            self.timer = Timer(time, self.switchActivity, [activity]) 
+            self.timer.start()
+        else: 
+            self.switchActivity(activity)
+
+    def setTimedLayout(self, layout, time):
+        """ Sets a timer and switches to the specified layout after 'time'. """
+        self.cancelTimer()
+        if time > 0:
+            self.timer = Timer(time, self.setLayout, [layout]) 
+            self.daemon = True
+            self.timer.start()
+        else:
+            self.setLayout(layout)

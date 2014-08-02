@@ -30,7 +30,7 @@ class InThreasd(threading.Thread):
 
 
     def run (self):
-        print "Type name of layout (Enter refreshes)"
+        print("Type name of layout (Enter refreshes)")
         while True:
             try:
                 inp = raw_input()
